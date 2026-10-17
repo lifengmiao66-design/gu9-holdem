@@ -97,3 +97,14 @@ node test_table.js
 ## License / Contact
 
 Demo source for evaluation. Questions → Telegram（飞机） [@king678ace](https://t.me/king678ace) · WeChat / WhatsApp QR above.
+
+## 推广文案 / Promo
+
+面向客户可用的中文广告文案与海报：
+
+- [朋友圈短文案](docs/promo/wechat-moments.md)
+- [Telegram / 社群文案](docs/promo/telegram.md)
+- 海报：![GU9 德州扑克包网](docs/promo/poster-gu9-lat.png)
+
+官网：https://gu9.lat/ · 演示：https://gu9.click/ · Telegram：https://t.me/king678ace
+
