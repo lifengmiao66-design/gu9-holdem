@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#f4f6f9">
+<title>GU9 Poker · UI Preview</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/table.css">
+<style>
+  body{overflow:auto}
+  .preview-page{max-width:420px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;background:var(--bg);border-left:1px solid var(--line);border-right:1px solid var(--line)}
+  .demo-section{padding:16px}
+  .demo-label{font-size:11px;font-weight:650;color:var(--txt3);letter-spacing:.4px;text-transform:uppercase;margin:20px 0 10px}
+  .mini-felt{width:100%;aspect-ratio:4/3;border-radius:24px;position:relative;overflow:hidden;
+    background:radial-gradient(ellipse at 50% 45%,#22a878 0%,#0d6b48 70%,#0a563a 100%);
+    border:6px solid #2a3544;box-shadow:0 0 0 4px #e8edf4,0 12px 32px rgba(15,23,42,.12);display:flex;align-items:center;justify-content:center}
+</style>
+</head>
+<body>
+<div class="preview-page">
+  <div class="topbar">
+    <div class="brand-mark"><img src="assets/logo-mark.png" alt="GU9"></div>
+    <div class="col grow topbar-who">
+      <div class="row gap6"><span class="b">GU9 Poker</span><span class="tag gold">VIP</span></div>
+      <div class="tiny txt3">ID 100071 · Texas Hold'em</div>
+    </div>
+    <div class="spacer"></div>
+    <div class="icon-btn" title="Messages">✉</div>
+    <div class="icon-btn" title="Settings">⚙</div>
+  </div>
+
+  <div class="body">
+    <div class="banner" style="background:linear-gradient(135deg,#2563eb,#0d6b48)">
+      <div class="slide on">
+        <div class="slide-body">
+          <div class="b" style="font-size:18px;color:#fff">Welcome to GU9</div>
+          <div class="tiny" style="color:rgba(255,255,255,.8);margin-top:4px">Premium Texas Hold'em · US & HK</div>
+        </div>
+      </div>
+      <div class="dots"><i class="on"></i><i></i><i></i></div>
+    </div>
+
+    <div class="demo-label">Assets</div>
+    <div class="asset-bar">
+      <div class="chip-pill"><span class="coin">$</span> 12,480 <span class="plus">+</span></div>
+      <div class="chip-pill diamond"><span class="coin">◆</span> 320</div>
+    </div>
+
+    <div class="demo-label">Quick entry</div>
+    <div class="grid g2">
+      <div class="card" style="cursor:pointer;text-align:center;padding:18px">
+        <div style="font-size:28px;margin-bottom:6px">♠</div>
+        <div class="b">Cash Game</div>
+        <div class="tiny txt3 mt8">NL Hold'em</div>
+      </div>
+      <div class="card" style="cursor:pointer;text-align:center;padding:18px">
+        <div style="font-size:28px;margin-bottom:6px">♣</div>
+        <div class="b">Private Room</div>
+        <div class="tiny txt3 mt8">Invite friends</div>
+      </div>
+    </div>
+
+    <div class="demo-label">Tables</div>
+    <div class="list">
+      <div class="li">
+        <div class="grow">
+          <div class="li-title">NL25 · 6-max</div>
+          <div class="li-sub"><span class="st">Blinds 0.10/0.25</span><i class="sep">·</i><span class="st">4/6 seated</span></div>
+        </div>
+        <button class="btn green sm">Join</button>
+      </div>
+      <div class="li">
+        <div class="grow">
+          <div class="li-title">NL100 · 9-max</div>
+          <div class="li-sub"><span class="st">Blinds 0.50/1</span><i class="sep">·</i><span class="st">7/9 seated</span></div>
+        </div>
+        <button class="btn green sm">Join</button>
+      </div>
+    </div>
+
+    <div class="demo-label">Buttons</div>
+    <div class="btnrow" style="margin-bottom:12px">
+      <button class="btn fold">Fold</button>
+      <button class="btn check">Check</button>
+      <button class="btn call">Call</button>
+      <button class="btn raise">Raise</button>
+    </div>
+    <button class="btn gold block lg">Buy chips</button>
+
+    <div class="demo-label">Felt preview</div>
+    <div class="mini-felt">
+      <div class="pot-box">
+        <div class="lbl">POT</div>
+        <div class="val">1,240</div>
+      </div>
+      <div style="position:absolute;bottom:18%;display:flex;gap:6px">
+        <div class="pcard md red"><span class="pc-r">A</span><span class="pc-s">♥</span></div>
+        <div class="pcard md black"><span class="pc-r">K</span><span class="pc-s">♠</span></div>
+        <div class="pcard md red"><span class="pc-r">Q</span><span class="pc-s">♦</span></div>
+        <div class="pcard md black"><span class="pc-r">J</span><span class="pc-s">♣</span></div>
+        <div class="pcard md red"><span class="pc-r">10</span><span class="pc-s">♥</span></div>
+      </div>
+    </div>
+
+    <div class="demo-label">Modal sample</div>
+    <div class="card gold">
+      <div class="b">Insurance available</div>
+      <div class="tiny txt2 mt8">Clean light panels with soft borders — no neon glow.</div>
+      <div class="row gap8 mt12">
+        <button class="btn ghost grow">Skip</button>
+        <button class="btn blue grow">Buy</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="navbar">
+    <div class="nav on"><div class="ico">⌂</div><div class="lb">Lobby</div></div>
+    <div class="nav"><div class="ico">♠</div><div class="lb">Games</div></div>
+    <div class="nav"><div class="ico">◎</div><div class="lb">Friends</div></div>
+    <div class="nav"><div class="ico">◇</div><div class="lb">Wallet</div></div>
+    <div class="nav"><div class="ico">●</div><div class="lb">Me</div></div>
+  </div>
+</div>
+</body>
+</html>

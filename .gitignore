@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.env
+.env.local
+.env.*.local
+*.tar.gz
+.DS_Store
+*.log
+# local runtime state (seed templates under data/ are committed empty)
+gu9-api/tables.json
+gu9-api/botpnl.json
+gu9-api/dailystats.json

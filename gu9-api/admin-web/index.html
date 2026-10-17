@@ -1,0 +1,1680 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GU9 Admin</title>
+<style>
+:root{
+  /* GU9 front brand: ink/navy + crimson + gold */
+  --bg:#02060e; --panel:#081227; --panel2:#0b1730; --panel3:#122142;
+  --line:rgba(255,255,255,.08); --line2:rgba(226,191,106,.28); --txt:#ffffff; --txt2:rgba(255,255,255,.7); --txt3:rgba(255,255,255,.45);
+  --gold:#e2bf6a; --gold2:#c9a24b; --gold3:#eed79a; --green:#3dd68c; --red:#de1e31; --crimson:#de1e31; --blue:#2a5ba8;
+  --navy:#08193a; --navy2:#0b2857;
+  --r:14px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:
+  radial-gradient(900px 520px at 18% -8%,rgba(222,30,49,.18),transparent 55%),
+  radial-gradient(1000px 600px at 82% -12%,rgba(42,91,168,.22),transparent 58%),
+  var(--bg);
+  color:var(--txt);font:14px/1.5 Inter,-apple-system,"PingFang SC","Segoe UI","Microsoft YaHei",sans-serif;
+  -webkit-font-smoothing:antialiased}
+#app{min-height:100%;display:flex;flex-direction:column}
+.top{display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid var(--line);
+  background:linear-gradient(180deg,rgba(8,25,58,.97),rgba(2,6,14,.94));position:relative;backdrop-filter:blur(10px)}
+.top::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(226,191,106,.55),rgba(222,30,49,.4),transparent)}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:16px}
+.brand img{width:28px;height:30px;object-fit:contain;filter:drop-shadow(0 0 8px rgba(245,195,82,.4))}
+.spacer{flex:1}
+.tabs{display:flex;gap:4px;padding:10px 18px 0}
+.tab{padding:9px 14px;border-radius:12px 12px 0 0;color:var(--txt3);cursor:pointer;font-weight:600;font-size:13.5px}
+.tab.on{color:var(--gold);background:var(--panel);border:1px solid rgba(226,191,106,.25);border-bottom:none;box-shadow:0 -1px 0 rgba(226,191,106,.15) inset}
+.body{flex:1;padding:16px 18px 30px}
+.card{background:linear-gradient(180deg,rgba(226,191,106,.04),rgba(255,255,255,.01)),var(--panel);
+  border:1px solid rgba(255,255,255,.08);border-radius:var(--r);padding:14px;box-shadow:0 12px 36px rgba(0,0,0,.45)}
+.grid{display:grid;gap:12px}
+.g4{grid-template-columns:repeat(4,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+@media(max-width:900px){.g4{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(2,1fr)}}
+.kpi{padding:14px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)}
+.kpi .v{font-size:24px;font-weight:800;color:var(--gold);font-variant-numeric:tabular-nums}
+.kpi .k{font-size:12px;color:var(--txt3);margin-top:2px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:9px 10px;text-align:left;border-bottom:1px solid rgba(255,255,255,.06);white-space:nowrap}
+th{color:var(--txt3);font-size:12px;font-weight:600}
+tr:hover td{background:rgba(255,255,255,.03)}
+input,select{background:var(--bg);border:1px solid var(--line);color:var(--txt);border-radius:10px;
+  padding:8px 10px;font-size:13.5px;outline:none;font-family:inherit}
+input:focus,select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(245,195,82,.12)}
+.btn{border:none;cursor:pointer;padding:0 14px;height:36px;border-radius:10px;font-weight:600;font-size:13.5px;
+  background:var(--panel3);color:#fff}
+.btn.gold{background:linear-gradient(180deg,#eed79a,var(--gold2));color:#050c1a}
+.btn.red{background:linear-gradient(180deg,#f03a4c,var(--crimson))}
+.btn.green{background:linear-gradient(180deg,#3ce08a,#12a35c)}
+.btn.ghost{background:transparent;border:1px solid var(--line2);color:var(--txt2)}
+.btn:active{transform:scale(.97)}
+.btn[disabled]{opacity:.5;pointer-events:none}
+.btn.sm{height:30px;padding:0 10px;font-size:12.5px}
+.row{display:flex;gap:8px;align-items:center}
+.mono{font-variant-numeric:tabular-nums}
+.muted{color:var(--txt3)}
+.tag{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700}
+.tag.on{background:rgba(46,204,113,.15);color:#7fe3a8}
+.tag.off{background:rgba(255,90,95,.15);color:#ffa4a7}
+.tag.vip{background:rgba(245,195,82,.16);color:var(--gold)}
+.tag.wait{background:rgba(245,195,82,.16);color:var(--gold)}
+.tag.run{background:rgba(42,91,168,.22);color:#9ecbff}
+.tag.done{background:rgba(46,204,113,.15);color:#7fe3a8}
+.tag.bad{background:rgba(255,90,95,.15);color:#ffa4a7}
+.sub{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.card+.card{margin-top:12px}
+.mask{position:fixed;inset:0;background:rgba(3,6,10,.78);backdrop-filter:blur(3px);display:flex;
+  align-items:center;justify-content:center;z-index:50;padding:20px}
+.modal{width:100%;max-width:520px;background:linear-gradient(180deg,#0b2857,#081227);border:1px solid rgba(226,191,106,.3);
+  border-radius:18px;box-shadow:0 24px 60px rgba(0,0,0,.65);overflow:hidden;max-height:88vh;display:flex;flex-direction:column}
+.mh{padding:14px 18px;border-bottom:1px solid var(--line);font-weight:700}
+.mb{padding:14px 18px;overflow:auto}
+.mf{padding:12px 18px;display:flex;gap:10px;justify-content:flex-end;border-top:1px solid var(--line)}
+.fld{margin-bottom:12px}
+.fld label{display:block;font-size:12px;color:var(--txt3);margin-bottom:5px}
+.fld input,.fld select{width:100%}
+.login-wrap{height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.login-box{width:min(400px,94vw);padding:28px;background:linear-gradient(180deg,rgba(11,40,87,.92),rgba(2,6,14,.98));
+  border:1px solid rgba(226,191,106,.35);border-radius:22px;box-shadow:0 28px 70px rgba(0,0,0,.65),0 0 0 1px rgba(222,30,49,.12)}
+.audit{max-height:420px;overflow:auto;font-size:12.5px}
+.audit div{padding:6px 8px;border-bottom:1px solid rgba(255,255,255,.05);display:flex;gap:10px}
+.audit .t{color:var(--txt3);min-width:150px;font-variant-numeric:tabular-nums}
+.pager{display:flex;gap:8px;align-items:center;justify-content:flex-end;margin-top:10px}
+.toast{position:fixed;left:50%;top:18px;transform:translateX(-50%);background:rgba(24,33,45,.97);
+  border:1px solid var(--line2);border-radius:12px;padding:10px 18px;z-index:99;font-size:13.5px}
+.toast.ok{border-color:rgba(46,204,113,.5);color:#8ff0bb}
+.toast.err{border-color:rgba(255,90,95,.5);color:#ffa4a7}
+.switch{width:44px;height:24px;border-radius:999px;background:#33404f;position:relative;cursor:pointer;flex:0 0 auto;transition:.2s}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.2s}
+.switch.on{background:linear-gradient(90deg,#3dd68c,#12a35c)}
+.switch.on::after{left:23px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+var API='/papi';
+var TOKEN=localStorage.getItem('gu9_admin_token')||'';
+var TAB=localStorage.getItem('gu9_admin_tab')||'dash';
+var usersPage=1, usersQ='', usersSize=20, usersTotal=0, cfg=null;
+/* ★ 任务奖励后台配置：任务 id → 展示名。
+   只用于后台界面显示，与前端 core.js 的 S.tasks 一一对应（改名字要两边一起改）。 */
+/* ★ 2026-10-03（用户要求）：任务只保留「每日签到」，8 条每日 / 成长任务全部下线。
+   这里清空 = 后台不再显示任务奖励输入框，保存时 rewards 也恒为空表。 */
+var TASK_NAMES={};
+
+function $(s,root){
+  root=root||document;
+  /* ★ 配置项 id 里带小数点（f-think.min / f-pay.limits.perTxMax）——
+     '#f-think.min' 在 CSS 选择器里会被当成「id=f-think 且 class=min」而找不到元素。
+     所以 #xxx 一律先走 getElementById，再退回属性选择器。 */
+  if(s.charAt(0)==='#'){
+    var id=s.slice(1);
+    var el=(root.getElementById?root.getElementById(id):null)||root.querySelector('[id="'+id+'"]');
+    if(el)return el;
+  }
+  return root.querySelector(s);
+}
+function esc(s){return String(s==null?'':s).replace(/[&<>"'`]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','`':'&#96;'}[c]})}
+function fmt(n){return (Math.round(n)||0).toLocaleString('zh-CN')}
+function ts(t){var d=new Date(t);return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate())+' '+p2(d.getHours())+':'+p2(d.getMinutes())+':'+p2(d.getSeconds())}
+function p2(n){return n<10?'0'+n:''+n}
+function toast(msg,kind){var el=document.createElement('div');el.className='toast '+(kind||'');el.textContent=msg;
+  document.body.appendChild(el);setTimeout(function(){el.remove()},2200)}
+async function api(p,opt){
+  opt=opt||{};
+  var h={'Content-Type':'application/json'};
+  if(TOKEN)h.Authorization='Bearer '+TOKEN;
+  var r=await fetch(API+p,{method:opt.method||'GET',headers:h,body:opt.body?JSON.stringify(opt.body):undefined});
+  var j=null;try{j=await r.json()}catch(e){}
+  if(r.status===401&&p.indexOf('/admin/')>=0){TOKEN='';localStorage.removeItem('gu9_admin_token');render();throw new Error('会话过期');}
+  return {code:r.status,j:j||{}};
+}
+
+/* ---------------- 登录 ---------------- */
+function renderLogin(msg){
+  $('#app').innerHTML='<div class="login-wrap"><div class="login-box">'+
+    '<div class="row" style="margin-bottom:18px"><img src="/assets/logo-mark.png" style="width:34px;height:36px;object-fit:contain" onerror="this.style.display=\'none\'">'+
+    '<div><div style="font-weight:800;font-size:17px">GU9 Admin</div><div class="muted" style="font-size:12px">Navy · Crimson · Gold · server-auth</div></div></div>'+
+    '<div class="fld"><label>管理员账号</label><input id="lg-u" autocomplete="username" placeholder="admin"></div>'+
+    '<div class="fld"><label>口令</label><input id="lg-p" type="password" autocomplete="current-password" placeholder="请输入后台口令"></div>'+
+    (msg?'<div style="color:#ffa4a7;font-size:12.5px;margin-bottom:10px">'+esc(msg)+'</div>':'')+
+    '<button class="btn gold" style="width:100%;height:42px" id="lg-go">登 录</button>'+
+    '<div class="muted" style="font-size:11.5px;margin-top:12px">连续输错 10 次将锁定该 IP 5 分钟</div>'+
+    '</div></div>';
+  $('#lg-go').onclick=doLogin;
+  $('#lg-p').onkeydown=function(e){if(e.key==='Enter')doLogin()};
+}
+async function doLogin(){
+  var u=$('#lg-u').value.trim(),p=$('#lg-p').value;
+  if(!u||!p){toast('请填写账号和口令','err');return}
+  try{
+    var r=await api('/admin/login',{method:'POST',body:{user:u,pwd:p}});
+    if(r.code===200&&r.j.token){TOKEN=r.j.token;localStorage.setItem('gu9_admin_token',TOKEN);render();toast('登录成功','ok')}
+    else toast(r.j.msg||('登录失败 '+r.code),'err');
+  }catch(e){renderLogin('网络错误：'+e.message)}
+}
+
+/* ---------------- 主框架 ---------------- */
+function render(){
+  if(!TOKEN)return renderLogin();
+  /* 老版本 localstorage 里可能留着已下线的页签名 → 回落到概览，避免空白页 */
+  var TABS=['dash','orders','wd','users','clubs','rooms','hands','ledger','tickets','reports','mails','mecontent','risk','ai','banner','config','bots','audit','chain'];
+  if(TABS.indexOf(TAB)<0)TAB='dash';
+  var TABDEF=[['dash','概览'],['orders','订单'],['wd','提现审核'],['users','用户'],['clubs','俱乐部'],['rooms','房间'],['hands','牌局'],
+    ['ledger','USDT流水'],['tickets','工单'],['reports','举报'],['mails','邮件公告'],['mecontent','Me内容'],
+    ['risk','风控'],['ai','AI 与透视'],['banner','Banner'],['config','参数配置'],['bots','机器人收支'],['chain','USDT 收款'],['audit','日志']];
+  $('#app').innerHTML=
+    '<div class="top"><div class="brand"><img src="/assets/logo-mark.png" onerror="this.style.display=\'none\'"><span>GU9 Admin</span></div>'+
+    '<span class="muted" style="font-size:12px">/padmin · 服务端鉴权</span><div class="spacer"></div>'+
+    '<button class="btn ghost sm" id="btn-out">退出</button></div>'+
+    '<div class="tabs" style="flex-wrap:wrap">'+
+      TABDEF.map(function(t){
+        return '<div class="tab'+(TAB===t[0]?' on':'')+'" data-tab="'+t[0]+'">'+t[1]+'</div>'}).join('')+
+    '</div><div class="body" id="view"><div class="muted">加载中…</div></div>';
+  $('#btn-out').onclick=function(){api('/admin/logout',{method:'POST'});TOKEN='';localStorage.removeItem('gu9_admin_token');renderLogin()};
+  document.querySelectorAll('[data-tab]').forEach(function(el){el.onclick=function(){TAB=el.dataset.tab;localStorage.setItem('gu9_admin_tab',TAB);render()}});
+  var LOAD={dash:loadDash,orders:loadOrders,wd:loadWithdraws,users:loadUsers,clubs:loadClubs,rooms:loadRooms,hands:loadHands,
+    ledger:loadLedger,tickets:loadTickets,reports:loadReports,mails:loadMails,mecontent:loadMeContent,
+    risk:loadRisk,ai:loadAi,banner:loadBanner,config:loadConfig,bots:loadBots,audit:loadAudit,chain:loadChain};
+  (LOAD[TAB]||loadDash)();
+}
+
+/* ---------------- 概览（2026-10-02 重写：只看 8 个数字是不够运营的） ---------------- */
+async function loadDash(){
+  var r=await api('/admin/extra/overview');
+  if(r.code!==200){$('#view').innerHTML='<div class="card">加载失败：'+esc(r.j.msg||r.code)+'</div>';return}
+  var s=r.j.stat,ret=r.j.retention,tr=r.j.trend;
+  var dr=await api('/admin/extra/dailystats?days=14');
+  var DS=(dr.code===200&&dr.j)?dr.j:{rows:[],today:{},last7:{},totals:{}};
+  var f2=function(v){return (Math.round((+v||0)*100)/100).toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2})};
+  var sg=function(v){return ((+v||0)>=0?'+':'')+f2(v)};
+  var ncls=function(v){return (+v||0)>=0?'#7fe3a8':'#ffa4a7'};
+  var maxV=1;tr.forEach(function(d){if(d.hands>maxV)maxV=d.hands});
+  $('#view').innerHTML=
+    '<div class="grid g4">'+
+      kpi(s.users,'注册用户')+kpi(s.newToday,'今日新增')+kpi(s.activeToday,'今日活跃')+kpi(s.banned,'封禁中')+
+      kpi(fmt(s.handsToday),'今日手数')+kpi(fmt(s.rakeToday),'今日抽水')+kpi(fmt(s.rake7),'近 7 日抽水')+
+      kpi(s.depositUsdt+' USDT','累计充值')+kpi(s.withdrawUsdt+' USDT','累计提现')+kpi(s.usdtPending+' USDT','待出款')+
+      kpi(fmt(s.chipsTotal),'USDT 存量')+kpi(fmt(s.cashableTotal),'可兑现池')+
+      kpi(s.roomsActive+' / '+s.rooms,'活跃房间 / 总数')+kpi(s.ticketsOpen,'待处理工单')+
+      kpi(s.reportsOpen,'待处理举报')+kpi(s.riskUsers,'风控标记用户')+kpi(sg((DS.today&&DS.today.platformNet)||0),'今日平台净利（USDT）')+kpi(sg((DS.last7&&DS.last7.platformNet)||0),'近 7 日平台净利（USDT）')+kpi(f2((DS.last7&&DS.last7.rake)||0),'近 7 日抽水（USDT）')+kpi(sg((DS.last7&&DS.last7.botNet)||0),'近 7 日机器人净（USDT）')+
+    '</div>'+
+    '<div class="grid g3" style="margin-top:12px">'+
+      '<div class="card"><div style="font-weight:700;margin-bottom:10px">留存率（当天注册 → 今日仍活跃）</div>'+
+        '<table><tbody>'+
+        '<tr><td class="muted">次日留存 D1</td><td class="mono">'+ret.d1.rate+'%</td><td class="muted">'+ret.d1.back+' / '+ret.d1.size+' 人</td></tr>'+
+        '<tr><td class="muted">7 日留存 D7</td><td class="mono">'+ret.d7.rate+'%</td><td class="muted">'+ret.d7.back+' / '+ret.d7.size+' 人</td></tr>'+
+        '<tr><td class="muted">30 日留存 D30</td><td class="mono">'+ret.d30.rate+'%</td><td class="muted">'+ret.d30.back+' / '+ret.d30.size+' 人</td></tr>'+
+        '</tbody></table></div>'+
+      '<div class="card" style="grid-column:span 2"><div style="font-weight:700;margin-bottom:10px">近 14 日趋势（手数 / 新增 / 活跃）</div>'+
+        '<div style="display:flex;align-items:flex-end;gap:4px;height:120px;padding:6px 2px;border-bottom:1px solid var(--line)">'+
+        tr.map(function(d){
+          var h=Math.max(2,Math.round(d.hands/maxV*96));
+          return '<div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;gap:3px" title="'+d.day+'：手数 '+d.hands+' · 抽水 '+fmt(d.rake)+' · 新增 '+d.users+' · 活跃 '+d.active+'">'+
+            '<div style="width:70%;background:linear-gradient(180deg,#eed79a,var(--gold2));border-radius:4px 4px 0 0;height:'+h+'px"></div>'+
+            '<div class="muted" style="font-size:9.5px">'+d.day.slice(3)+'</div></div>'}).join('')+
+        '</div>'+
+        '<div class="muted" style="font-size:11.5px;margin-top:8px">鼠标悬停查看当日明细 · 活跃 = 当日有登录行为的账号</div></div>'+
+    '</div>'+
+    '<div class="card" style="margin-top:12px"><div style="font-weight:700;margin-bottom:4px">每日净利润（近 14 日 · 服务端权威）</div>'+
+      '<div class="muted" style="font-size:11.5px;margin-bottom:10px">口径：<b>平台净利 = 抽水 + 机器人净 + 提现手续费 + 人工调账</b>；数据由服务端每手结算时按自然日入账，不依赖前端上报，纯机器人桌的抽水也计入。充值 / 提现是玩家资金进出，不计入利润，仅作参考。</div>'+
+      '<div style="overflow:auto"><table><thead><tr><th>日期</th><th>手数</th><th>抽水</th><th>机器人净</th><th>提现手续费</th><th>人工调账</th><th>平台净利</th><th>充值</th><th>提现</th></tr></thead><tbody>'+
+      ((DS.rows&&DS.rows.length)?DS.rows.slice().reverse().map(function(x){
+        return '<tr><td class="muted">'+esc(x.day)+'</td><td class="mono">'+x.hands+'</td>'+
+          '<td class="mono">'+f2(x.rake)+'</td>'+
+          '<td class="mono" style="color:'+ncls(x.botNet)+'">'+sg(x.botNet)+'</td>'+
+          '<td class="mono">'+f2(x.fee)+'</td>'+
+          '<td class="mono" style="color:'+ncls(x.adjust)+'">'+sg(x.adjust)+'</td>'+
+          '<td class="mono" style="color:'+ncls(x.platformNet)+';font-weight:700">'+sg(x.platformNet)+'</td>'+
+          '<td class="mono muted">'+f2(x.deposit)+'</td><td class="mono muted">'+f2(x.withdraw)+'</td></tr>';
+      }).join(''):'<tr><td colspan="9" class="muted">暂无数据</td></tr>')+
+      '</tbody></table></div></div>'+
+      '<div class="card" style="margin-top:12px"><div style="font-weight:700;margin-bottom:10px">常用操作</div>'+
+      '<div class="row" style="flex-wrap:wrap">'+
+        '<button class="btn gold sm" id="d-sweep">清理僵尸房（24h 无活动）</button>'+
+        '<button class="btn sm" id="d-backup">立即备份数据</button>'+
+        '<button class="btn ghost sm" id="d-export-u">导出用户 CSV</button>'+
+        '<button class="btn ghost sm" id="d-export-o">导出订单 CSV</button>'+
+        '<button class="btn ghost sm" id="d-export-h">导出牌局 CSV</button>'+
+        '<button class="btn ghost sm" id="d-export-l">导出USDT流水 CSV</button>'+
+      '</div>'+
+      '<div class="muted" style="font-size:12px;margin-top:10px">'+
+      '★ 资金口径：<b>站内余额即 USDT（1 USDT = 1 USDT，两位小数）</b>，无「筹码 / 分」概念；<b>可兑现池 cashable</b> 为亏损风控口径下的可提现上限。'+
+      '★ 充值通道 TRC20 / ERC20(以太坊) / SOL(Solana) 链上到账；提现由运营方链上出款并回填 TXID（服务端无私钥）。<br>'+
+      '数据每 30 秒自动刷新 · 所有后台操作写入 audit.log（带 role 分流，见「日志」页）</div></div>';
+  $('#d-sweep').onclick=async function(){
+    if(!confirm('清理所有超过 24 小时没有活动的房间？'))return;
+    var x=await api('/admin/extra/rooms/sweep',{method:'POST',body:{hours:24}});
+    toast(x.code===200?('已清理 '+x.j.rooms+' 间房间'):('失败：'+(x.j.msg||x.code)),x.code===200?'ok':'err');
+  };
+  $('#d-backup').onclick=async function(){
+    var x=await api('/admin/extra/backup',{method:'POST'});
+    toast(x.code===200?('已备份 '+x.j.files+' 个文件'):('失败：'+(x.j.msg||x.code)),x.code===200?'ok':'err');
+  };
+  ['u|users','o|orders','h|hands','l|ledger'].forEach(function(t){
+    var k=t.split('|')[0],v=t.split('|')[1];
+    $('#d-export-'+k).onclick=function(){download(v)};
+  });
+  clearTimeout(window.__dt);window.__dt=setTimeout(function(){if(TAB==='dash')loadDash()},30000);
+}
+function kpi(v,k){return '<div class="kpi"><div class="v">'+esc(v)+'</div><div class="k">'+esc(k)+'</div></div>'}
+
+/* ---------------- 订单管理 ---------------- */
+var ordStatus='',ordQ='',ordPage=1;
+var OSTAG={pending:'wait',frozen:'wait',approved:'run',rejected:'bad',refunded:'bad',completed:'done'};
+function orderBtns(o){
+  var id=o.id,b=[];
+  if(o.status==='pending'){
+    b.push('<button class="btn sm gold" data-ord="'+id+'" data-op="approve">'+(o.type==='withdraw'?'风控通过':'审核通过')+'</button>');
+    b.push('<button class="btn sm ghost" data-ord="'+id+'" data-op="freeze">冻结</button>');
+    b.push('<button class="btn sm red" data-ord="'+id+'" data-op="reject">驳回</button>');
+  }else if(o.status==='frozen'){
+    b.push('<button class="btn sm gold" data-ord="'+id+'" data-op="approve">放行</button>');
+    b.push('<button class="btn sm ghost" data-ord="'+id+'" data-op="freeze">解冻</button>');
+    b.push('<button class="btn sm red" data-ord="'+id+'" data-op="reject">驳回</button>');
+  }else if(o.status==='approved'){
+    b.push('<button class="btn sm green" data-ord="'+id+'" data-op="approve">'+(o.type==='withdraw'?'出款完成':'确认到账')+'</button>');
+    b.push('<button class="btn sm red" data-ord="'+id+'" data-op="reject">驳回</button>');
+  }else if(o.status==='rejected'&&o.type==='withdraw'){
+    b.push('<button class="btn sm ghost" data-ord="'+id+'" data-op="refund">退回USDT</button>');
+  }else{
+    b.push('<span class="muted">—</span>');
+  }
+  return b.join(' ');
+}
+async function loadOrders(){
+  var r=await api('/admin/orders?status='+encodeURIComponent(ordStatus)+'&q='+encodeURIComponent(ordQ)+'&page='+ordPage+'&size=20');
+  if(r.code!==200){$('#view').innerHTML='<div class="card">加载失败：'+esc(r.j.msg||r.code)+'</div>';return}
+  var k=r.j.kpi||{},list=r.j.list||[],prov=(r.j.pay&&r.j.pay.provider)||'none';
+  var h='<div class="grid g4">'+
+    kpi(k.pending,'待审核')+kpi(k.frozen,'已冻结')+kpi(k.approved,'已通过')+kpi(k.completed,'已完成')+
+    kpi(fmt(k.inSum),'已到账充值(USDT)')+kpi(fmt(k.outSum),'已出款提现(USDT)')+
+    kpi(k.rejected,'已驳回')+kpi(r.j.total,'订单总数')+
+  '</div>';
+  h+='<div class="card" style="margin-top:14px'+(prov==='none'?';border-color:rgba(245,195,82,.45)':'')+'">'+
+    '<div class="muted" style="font-size:12.5px">支付适配器：<b style="color:'+(prov==='none'?'var(--gold)':'#3dd68c')+'">'+esc(prov)+'</b>　'+
+    (prov==='none'
+      ? '★ 未接入 —— 充值订单不下发收款地址，玩家无从转账，订单会停在「待审核」。这是刻意的：地址必须由持牌运营方的 PSP / 托管钱包下发，平台不生成、不托管任何资金地址。'
+      : '已接入，地址由 provider 下发。')+'</div></div>';
+  h+='<div class="card" style="margin-top:12px">'+
+    '<div class="row" style="margin-bottom:12px;flex-wrap:wrap">'+
+      '<input id="o-q" placeholder="订单号 / 用户 / TXID" value="'+esc(ordQ)+'" style="width:220px">'+
+      '<select id="o-st">'+
+        [['','全部状态'],['pending','待审核'],['frozen','已冻结'],['approved','已通过'],['rejected','已驳回'],['refunded','已退回'],['completed','已完成']]
+          .map(function(x){return '<option value="'+x[0]+'"'+(ordStatus===x[0]?' selected':'')+'>'+x[1]+'</option>'}).join('')+
+      '</select>'+
+      '<button class="btn gold sm" id="o-search">筛选</button>'+
+      '<button class="btn ghost sm" id="o-reload">刷新</button>'+
+    '</div>'+
+    '<div style="overflow:auto"><table><thead><tr>'+
+      '<th>订单号</th><th>用户</th><th>类型</th><th>网络</th><th>申请额</th><th>实际到账</th><th>凭证</th><th>状态</th><th>时间</th><th>操作</th>'+
+    '</tr></thead><tbody>'+
+    (list.length?list.map(function(o){
+      var proof=o.type==='recharge'?esc(o.txid||'—'):esc(o.address||'—');
+      var typeCell=o.legacy?'<span class="muted" title="旧版本（VIP 订阅 / 赛事门票）遗留记录">旧数据</span>':(o.type==='recharge'?'充值':'提现');
+      return '<tr><td class="mono">'+esc(o.id)+'</td>'+
+        '<td>'+esc(o.user||'')+'<div class="muted" style="font-size:11px">'+esc(o.uid||'')+'</div></td>'+
+        '<td>'+typeCell+'</td><td class="mono">'+esc(o.net||'')+'</td>'+
+        '<td class="mono">'+fmt(o.usdt)+'</td><td class="mono">'+fmt(o.amount)+'</td>'+
+        '<td class="mono muted" style="max-width:170px;overflow:hidden;text-overflow:ellipsis" title="'+proof+'">'+proof+'</td>'+
+        '<td><span class="tag '+(OSTAG[o.status]||'off')+'">'+esc(o.statusText||o.status)+'</span></td>'+
+        '<td class="muted" style="font-size:11.5px">'+ts(o.createdAt)+'</td>'+
+        '<td>'+(o.legacy?'<span class="muted">—</span>':orderBtns(o))+'</td></tr>';
+    }).join(''):'<tr><td colspan="10" class="muted" style="padding:20px;text-align:center">没有匹配的订单</td></tr>')+
+    '</tbody></table></div>'+
+    '<div class="pager"><button class="btn ghost sm" id="pgp">上一页</button>'+
+    '<span class="muted">第 '+ordPage+' / '+Math.max(1,Math.ceil((r.j.total||0)/20))+' 页</span>'+
+    '<button class="btn ghost sm" id="pgn">下一页</button></div></div>';
+  $('#view').innerHTML=h;
+  $('#o-search').onclick=function(){ordQ=$('#o-q').value.trim();ordStatus=$('#o-st').value;ordPage=1;loadOrders()};
+  $('#o-q').onkeydown=function(e){if(e.key==='Enter')$('#o-search').click()};
+  $('#o-reload').onclick=loadOrders;
+  $('#pgp').onclick=function(){if(ordPage>1){ordPage--;loadOrders()}};
+  $('#pgn').onclick=function(){if(ordPage*20<(r.j.total||0)){ordPage++;loadOrders()}};
+  document.querySelectorAll('[data-ord]').forEach(function(b){b.onclick=function(){doOrder(b.dataset.ord,b.dataset.op)}});
+}
+async function doOrder(id,op){
+  var label={approve:'确认执行该状态流转？',reject:'确定驳回该订单？（提现的冻结USDT可随后退回）',freeze:'确定冻结 / 解冻该订单？',refund:'确定把冻结的USDT退回给玩家？'}[op]||'确定执行？';
+  if(!confirm(label))return;
+  var r=await api('/admin/order/'+id+'/'+op,{method:'POST'});
+  var t=(r.j&&r.j.order&&r.j.order.statusText)||'';
+  toast(r.code===200?('已更新为「'+t+'」'+((r.j.extra)?(' · '+r.j.extra):'')):('失败：'+((r.j&&r.j.msg)||r.code)),r.code===200?'ok':'err');
+  if(r.code===200)loadOrders();
+}
+
+/* ---------------- 提现审核（2026-10-03 新增：后台必须看清「收款账户 + 提现金额」） ----------------
+   以前提现单混在通用订单表里，收款地址被塞进「凭证」列还会被省略号截断，
+   运营打款前得悬停看 title，很容易打错地址。这里单独成一页：金额 / 手续费 / 实到 / 完整地址。 */
+var wdStatus='',wdQ='',wdPage=1;
+function explorerAddr(net,addr){
+  if(!addr)return '';
+  var n=String(net||'').toUpperCase();
+  if(n==='TRC20')return 'https://tronscan.org/#/address/'+addr;
+  if(n==='ERC20'||n==='ETH')return 'https://etherscan.io/address/'+addr;
+  if(n==='BEP20')return 'https://bscscan.com/address/'+addr;
+  if(n==='SOL')return 'https://solscan.io/account/'+addr;
+  return '';
+}
+async function loadWithdraws(){
+  var r=await api('/admin/withdraws?status='+encodeURIComponent(wdStatus)+'&q='+encodeURIComponent(wdQ)+'&page='+wdPage+'&size=20');
+  if(r.code!==200){$('#view').innerHTML='<div class="card">加载失败：'+esc(r.j.msg||r.code)+'</div>';return}
+  var k=r.j.kpi||{},list=r.j.list||[],fee=r.j.feeFlat;
+  var h='<div class="grid g4">'+
+    kpi(k.waitSum+' USDT','待出款（未打款）')+kpi(k.outSum+' USDT','已出款')+kpi(k.feeSum+' USDT','已收手续费')+
+    kpi(k.pending,'待审核')+kpi(k.approved,'待打款')+kpi(k.completed,'已完成')+kpi(k.rejected,'已驳回')+kpi(r.j.total,'提现单总数')+
+  '</div>';
+  h+='<div class="card" style="margin-top:12px">'+
+    '<div class="row" style="margin-bottom:12px;flex-wrap:wrap">'+
+      '<input id="w-q" placeholder="订单号 / 用户 / ID / 收款地址 / TXID" value="'+esc(wdQ)+'" style="width:260px">'+
+      '<select id="w-st">'+
+        [['','全部状态'],['pending','待审核'],['frozen','已冻结'],['approved','待打款'],['completed','已出款'],['rejected','已驳回'],['refunded','已退回']]
+          .map(function(x){return '<option value="'+x[0]+'"'+(wdStatus===x[0]?' selected':'')+'>'+x[1]+'</option>'}).join('')+
+      '</select>'+
+      '<button class="btn gold sm" id="w-search">筛选</button>'+
+      '<button class="btn ghost sm" id="w-reload">刷新</button>'+
+      '<span class="muted" style="font-size:12px">单笔固定手续费 '+esc(fee)+' USDT · 实际到账 = 提现金额 − 手续费</span>'+
+    '</div>'+
+    '<div style="overflow:auto"><table><thead><tr>'+
+      '<th>订单号</th><th>用户</th><th>网络</th><th>提现金额</th><th>手续费</th><th>实际到账</th><th>收款账户</th><th>出款 TXID</th><th>状态</th><th>时间</th><th>操作</th>'+
+    '</tr></thead><tbody>'+
+    (list.length?list.map(function(o){
+      var ex=explorerAddr(o.net,o.address);
+      return '<tr><td class="mono">'+esc(o.id)+'</td>'+
+        '<td>'+esc(o.user||'')+'<div class="muted" style="font-size:11px">'+esc(o.uid||'')+'</div></td>'+
+        '<td class="mono">'+esc(o.net||'')+'</td>'+
+        '<td class="mono"><b>'+fmt(o.usdt)+' U</b></td>'+
+        '<td class="mono muted">'+fmt(o.fee)+' U</td>'+
+        '<td class="mono"><b style="color:#7fe3a8">'+fmt(o.amount)+' U</b></td>'+
+        '<td class="mono" style="max-width:300px">'+
+          '<div style="word-break:break-all;font-size:12px">'+esc(o.address||'—')+'</div>'+
+          '<div class="row gap8" style="margin-top:4px">'+
+            '<button class="btn sm ghost" data-cp="'+esc(o.address||'')+'">复制</button>'+
+            (ex?'<a class="btn sm ghost" href="'+esc(ex)+'" target="_blank" rel="noopener">查链</a>':'')+
+          '</div></td>'+
+        '<td class="mono" style="max-width:170px;font-size:11.5px;word-break:break-all">'+
+          (o.txid?esc(o.txid):'<button class="btn sm" data-tx="'+esc(o.id)+'">填 TXID</button>')+'</td>'+
+        '<td><span class="tag '+(OSTAG[o.status]||'off')+'">'+esc(o.statusText||o.status)+'</span></td>'+
+        '<td class="muted" style="font-size:11.5px">'+ts(o.createdAt)+'</td>'+
+        '<td>'+orderBtns(o)+'</td></tr>';
+    }).join(''):'<tr><td colspan="11" class="muted" style="padding:20px;text-align:center">还没有提现单</td></tr>')+
+    '</tbody></table></div>'+
+    '<div class="pager"><button class="btn ghost sm" id="w-p">上一页</button>'+
+    '<span class="muted">第 '+wdPage+' / '+Math.max(1,Math.ceil((r.j.total||0)/20))+' 页</span>'+
+    '<button class="btn ghost sm" id="w-n">下一页</button></div></div>';
+  $('#view').innerHTML=h;
+  $('#w-search').onclick=function(){wdQ=$('#w-q').value.trim();wdStatus=$('#w-st').value;wdPage=1;loadWithdraws()};
+  $('#w-q').onkeydown=function(e){if(e.key==='Enter')$('#w-search').click()};
+  $('#w-reload').onclick=loadWithdraws;
+  $('#w-p').onclick=function(){if(wdPage>1){wdPage--;loadWithdraws()}};
+  $('#w-n').onclick=function(){if(wdPage*20<(r.j.total||0)){wdPage++;loadWithdraws()}};
+  document.querySelectorAll('[data-cp]').forEach(function(b){b.onclick=function(){
+    var v=b.dataset.cp||'';
+    if(!v){toast('这张单没有收款地址','err');return}
+    try{navigator.clipboard.writeText(v);toast('收款地址已复制','ok')}
+    catch(e){toast('复制失败，请手动选中复制','err')}
+  }});
+  document.querySelectorAll('[data-tx]').forEach(function(b){b.onclick=async function(){
+    var v=prompt('填写出款交易哈希（TXID）：');
+    if(v===null)return;
+    if(v.trim().length<6){toast('TXID 太短','err');return}
+    var x=await api('/admin/order/'+b.dataset.tx+'/txid',{method:'POST',body:{txid:v.trim()}});
+    toast(x.code===200?'已记录 TXID':'失败：'+(x.j.msg||x.code),x.code===200?'ok':'err');
+    if(x.code===200)loadWithdraws();
+  }});
+  document.querySelectorAll('[data-ord]').forEach(function(b){b.onclick=function(){doOrder(b.dataset.ord,b.dataset.op)}});
+}
+
+
+/* ---------------- 俱乐部（脚手架） ---------------- */
+var clubsQ='';
+async function loadClubs(){
+  var r=await api('/admin/clubs?q='+encodeURIComponent(clubsQ));
+  if(r.code!==200){$('#view').innerHTML='<div class="card">加载失败：'+esc(r.j.msg||r.code)+'</div>';return}
+  var list=r.j.list||[];
+  $('#view').innerHTML='<div class="card">'+
+    bar('<input id="c-q" placeholder="搜索俱乐部名称 / ID" value="'+esc(clubsQ)+'" style="width:240px">'+
+      '<button class="btn sm" id="c-go">搜索</button>'+
+      '<button class="btn gold sm" id="c-new">新建俱乐部</button>')+
+    '<table><thead><tr><th>ID</th><th>名称</th><th>房主</th><th>成员</th><th>池余额(USDT)</th><th>状态</th><th>更新</th><th>操作</th></tr></thead><tbody>'+
+    (list.length?list.map(function(c){
+      return '<tr><td class="mono">'+esc(c.id)+'</td><td>'+esc(c.name)+'</td><td>'+esc(c.ownerName||'-')+'</td>'+
+        '<td>'+c.members+'/'+c.maxMembers+'</td><td class="mono">'+(+c.bal||0).toFixed(2)+'</td>'+
+        '<td>'+esc(c.status)+'</td><td class="muted">'+(c.updatedAt?new Date(c.updatedAt).toLocaleString('zh-CN'):'-')+'</td>'+
+        '<td><button class="btn sm ghost" data-cedit="'+esc(c.id)+'">编辑</button> '+
+        '<button class="btn sm ghost" data-cwal="'+esc(c.id)+'">调账</button></td></tr>';
+    }).join(''):'<tr><td colspan="8" class="muted" style="padding:20px;text-align:center">暂无俱乐部 — 点「新建」开始</td></tr>')+
+    '</tbody></table></div>';
+  $('#c-go').onclick=function(){clubsQ=$('#c-q').value.trim();loadClubs()};
+  $('#c-new').onclick=async function(){
+    var name=prompt('俱乐部名称'); if(!name)return;
+    var owner=prompt('房主用户 ID（可留空）','')||'';
+    var x=await api('/admin/clubs',{method:'POST',body:{name:name,owner:owner}});
+    if(x.code===200){toast('已创建 '+x.j.club.id,'ok');loadClubs()} else toast(x.j.msg||'失败','err');
+  };
+  document.querySelectorAll('[data-cedit]').forEach(function(b){b.onclick=async function(){
+    var id=b.dataset.cedit;
+    var d=await api('/admin/clubs/'+id); if(d.code!==200){toast(d.j.msg||'失败','err');return}
+    var c=d.j.club;
+    var name=prompt('名称',c.name); if(name==null)return;
+    var st=prompt('状态 active/frozen/closed',c.status); if(st==null)return;
+    var x=await api('/admin/clubs/'+id,{method:'PATCH',body:{name:name,status:st}});
+    if(x.code===200){toast('已保存','ok');loadClubs()} else toast(x.j.msg||'失败','err');
+  }});
+  document.querySelectorAll('[data-cwal]').forEach(function(b){b.onclick=async function(){
+    var id=b.dataset.cwal;
+    var d=prompt('调账金额（USDT，可为负）','0'); if(d==null)return;
+    var note=prompt('备注','后台调账')||'后台调账';
+    var x=await api('/admin/clubs/'+id,{method:'PATCH',body:{walletDelta:+d,note:note}});
+    if(x.code===200){toast('池余额 → '+x.j.club.bal,'ok');loadClubs()} else toast(x.j.msg||'失败','err');
+  }});
+}
+
+/* ---------------- 用户管理 ---------------- */
+async function loadUsers(){
+  var r=await api('/admin/users?q='+encodeURIComponent(usersQ)+'&page='+usersPage+'&size='+usersSize+'&sort=lastLogin');
+  if(r.code!==200){$('#view').innerHTML='<div class="card">加载失败：'+esc(r.j.msg||r.code)+'</div>';return}
+  usersTotal=r.j.total;
+  $('#view').innerHTML='<div class="card">'+
+    '<div class="row" style="margin-bottom:12px">'+
+      '<input id="u-q" placeholder="搜索账号 / 昵称 / ID" value="'+esc(usersQ)+'" style="width:240px">'+
+      '<button class="btn gold sm" id="u-search">搜索</button>'+
+      '<button class="btn ghost sm" id="u-reload">刷新</button>'+
+      '<div class="spacer" style="flex:1"></div><span class="muted">共 '+usersTotal+' 人</span>'+
+    '</div>'+
+    '<div style="overflow:auto"><table><thead><tr>'+
+      '<th>ID</th><th>登录账号</th><th>昵称</th><th>等级（充值）</th><th>VIP</th><th>USDT 余额</th><th>KYC</th><th>状态</th><th>注册</th><th>最后登录</th><th>操作</th>'+
+    '</tr></thead><tbody>'+
+    (r.j.list.length?r.j.list.map(function(u){
+      return '<tr><td class="mono muted">'+esc(u.id)+'</td><td class="mono">'+esc(u.acc||'-')+'</td><td>'+esc(u.name)+'</td>'+
+        '<td class="mono">'+u.level+'</td><td>'+(u.vip?'<span class="tag vip">VIP'+u.vip+'</span>':'<span class="muted">-</span>')+'</td>'+
+        '<td class="mono">'+(u.usdt||0).toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2})+'</td>'+
+        '<td>'+(u.kyc===false?'<span class="tag wait">未认证</span>':'<span class="tag on">已认证</span>')+'</td>'+
+        '<td>'+(u.banned?'<span class="tag off">已封禁</span>':'<span class="tag on">正常</span>')+'</td>'+
+        '<td class="muted">'+ts(u.createdAt)+'</td><td class="muted">'+ts(u.lastLogin)+'</td>'+
+        '<td><button class="btn sm" data-detail="'+u.id+'">详情</button> '+
+        '<button class="btn sm gold" data-edit="'+u.id+'">编辑</button> '+
+        (u.banned?'<button class="btn sm green" data-ban="'+u.id+'" data-to="0">解封</button>':'<button class="btn sm red" data-ban="'+u.id+'" data-to="1">封禁</button>')+'</td></tr>'
+    }).join(''):'<tr><td colspan="11" class="muted" style="padding:20px;text-align:center">没有匹配的用户</td></tr>')+
+    '</tbody></table></div>'+
+    '<div class="pager"><button class="btn ghost sm" id="pg-prev">上一页</button>'+
+    '<span class="muted">第 '+usersPage+' / '+Math.max(1,Math.ceil(usersTotal/usersSize))+' 页</span>'+
+    '<button class="btn ghost sm" id="pg-next">下一页</button></div></div>';
+  $('#u-search').onclick=function(){usersQ=$('#u-q').value.trim();usersPage=1;loadUsers()};
+  $('#u-q').onkeydown=function(e){if(e.key==='Enter'){$('#u-search').click()}};
+  $('#u-reload').onclick=loadUsers;
+  $('#pg-prev').onclick=function(){if(usersPage>1){usersPage--;loadUsers()}};
+  $('#pg-next').onclick=function(){if(usersPage*usersSize<usersTotal){usersPage++;loadUsers()}};
+  document.querySelectorAll('[data-detail]').forEach(function(b){b.onclick=function(){userDetail(b.dataset.detail)}});
+  document.querySelectorAll('[data-edit]').forEach(function(b){b.onclick=function(){editUser(b.dataset.edit)}});
+  document.querySelectorAll('[data-ban]').forEach(function(b){b.onclick=function(){
+    var to=b.dataset.to==='1';
+    if(!confirm('确定'+(to?'封禁':'解封')+'该用户？'))return;
+    api('/admin/user/'+b.dataset.ban,{method:'PATCH',body:{banned:to}}).then(function(r){
+      toast(r.code===200?('已'+(to?'封禁':'解封')):('失败：'+(r.j.msg||r.code)),r.code===200?'ok':'err');loadUsers()});
+  }});
+}
+async function editUser(id){
+  var r=await api('/admin/user/'+id);
+  if(r.code!==200){toast('读取失败','err');return}
+  var u=r.j.user;
+  var m=document.createElement('div');m.className='mask';
+  m.innerHTML='<div class="modal"><div class="mh">编辑用户 · '+esc(u.name)+' <span class="muted" style="font-weight:400;font-size:12px">'+esc(u.id)+'</span></div>'+
+    '<div class="mb">'+
+      '<div class="fld"><label>登录账号（不可改）</label><div class="mono muted" style="padding:8px 2px">'+esc(u.acc||'-')+'</div></div>'+
+      fld('昵称','name',u.name,'text')+
+      '<div class="fld"><label>USDT 余额</label><input id="f-usdt" type="number" step="0.01" min="0" value="'+esc(u.usdt)+'"></div>'+
+      fld('VIP 等级（0-8）','vip',u.vip,'number')+
+      '<div class="fld"><label>等级（按累计充值自动计算，不可手改）</label><div class="mono" style="padding:8px 2px">Lv.'+u.level+' · 累计充值 '+((+u.depositUsdt)||0).toFixed(2)+' USDT</div></div>'+
+      fld('备注','note',u.note||'','text')+
+      fld('重置密码（留空不改）','pwd','','password')+
+      '<div class="row"><span class="muted" style="font-size:12.5px">封禁</span><div class="switch'+(u.banned?' on':'')+'" id="sw-ban"></div></div>'+
+      '<div class="row" style="margin-top:10px"><span class="muted" style="font-size:12.5px">实名认证（KYC）</span><div class="switch'+(u.kyc!==false?' on':'')+'" id="sw-kyc-u"></div></div>'+
+    '</div><div class="mf"><button class="btn ghost" id="m-cancel">取消</button><button class="btn gold" id="m-save">保存</button></div></div>';
+  document.body.appendChild(m);
+  var banned=!!u.banned;
+  $('#sw-ban',m).onclick=function(){banned=!banned;this.classList.toggle('on',banned)};
+  var ukyc=u.kyc!==false;
+  $('#sw-kyc-u',m).onclick=function(){ukyc=!ukyc;this.classList.toggle('on',ukyc)};
+  $('#m-cancel',m).onclick=function(){m.remove()};
+  $('#m-save',m).onclick=async function(){
+    var body={name:$('#f-name',m).value.trim(),usdt:+$('#f-usdt',m).value,
+      vip:+$('#f-vip',m).value,note:$('#f-note',m).value,banned:banned,kyc:ukyc};
+    if($('#f-pwd',m).value) body.pwd=$('#f-pwd',m).value;
+    var rr=await api('/admin/user/'+id,{method:'PATCH',body:body});
+    if(rr.code===200){toast('已保存','ok');m.remove();loadUsers()}
+    else toast('保存失败：'+(rr.j.msg||rr.code),'err');
+  };
+}
+function fld(label,k,v,t){
+  return '<div class="fld"><label>'+esc(label)+'</label><input id="f-'+k+'" type="'+(t||'text')+'" value="'+esc(v)+'"></div>';
+}
+
+/* ---------------- 参数配置 ---------------- */
+async function loadConfig(){
+  var r=await api('/admin/config');
+  if(r.code!==200){$('#view').innerHTML='<div class="card">加载失败</div>';return}
+  cfg=r.j.config;
+  var ai=cfg.ai,th=cfg.think,ec=cfg.econ;
+  /* ★ 2026-10-07：盲注级别（后台可配）。格式 ["1/2","2/4"] = 小盲/大盲；没配过就显示默认七档。 */
+  var bl=(cfg.lobby&&cfg.lobby.blinds)||[];
+  var blindTxt=bl.length?bl.join('\n'):'1/2\n2/4\n5/10\n10/20\n25/50\n50/100\n100/200';
+  $('#view').innerHTML=
+    '<div class="grid g3">'+
+      '<div class="card"><div style="font-weight:700;margin-bottom:10px">机器人行为</div>'+
+        '<div class="row" style="margin-bottom:12px;flex-wrap:wrap"><span style="font-size:12.5px">机器人总开关（关后全场不安排机器人陪坐，控水同步关闭）</span>'+
+          '<div class="switch'+((cfg.bots&&cfg.bots.on!==false)?' on':'')+'" id="sw-bots"></div>'+
+          '<span class="muted" style="font-size:12px">当前：'+((cfg.bots&&cfg.bots.on!==false)?'开启':'<b style="color:#ffa4a7">已关闭</b>')+'</span></div>'+
+        num('思考最短(ms)','think.min',th.min)+num('思考最长(ms)','think.max',th.max)+
+        num('蒙特卡洛次数','ai.iters',ai.iters)+
+        num('价值下注阈值','ai.vbetEq',ai.vbetEq)+num('加注阈值','ai.raiseEq',ai.raiseEq)+
+        num('半诈唬频率','ai.semiBluff',ai.semiBluff)+num('弃牌底线','ai.airFold',ai.airFold)+
+      '</div>'+
+      '<div class="card"><div style="font-weight:700;margin-bottom:10px">经济参数</div>'+
+        num('USDT折算参考(1 USDT=?USDT)','econ.chipPerUsdt',ec.chipPerUsdt)+
+        num('抽水比例(0.05=5%)','econ.rakePct',ec.rakePct)+
+        num('抽水上限(BB)','econ.rakeCapBB',ec.rakeCapBB)+
+        '<div class="fld"><label>VIP 返水(%)，逗号分隔 VIP0-8</label><input id="f-rebate" value="'+esc((ec.rebate||[]).join(','))+'"></div>'+
+        num('邀请好友奖励(USDT/人)','econ.inviteReward',ec.inviteReward!=null?ec.inviteReward:10)+
+        num('邀请奖励单日上限(人)','econ.inviteDayCap',ec.inviteDayCap!=null?ec.inviteDayCap:20)+
+        '<div class="muted" style="font-size:12px;margin:2px 0 6px">好友注册时填了推荐人的 ID，推荐人即得上面的奖励；每人每天最多领 inviteDayCap 笔，防刷号。</div>'+
+        '<div style="height:1px;background:#26324a;margin:10px 0"></div>'+
+        '<div style="font-weight:700;margin-bottom:6px;color:var(--gold)">注册赠送 USDT</div>'+
+        num('注册赠送开关(1开 0关)','reg.on',(cfg.reg&&cfg.reg.on!==false)?1:0)+
+        num('注册赠送金额(USDT，0=不发)','reg.bonus',cfg.reg&&cfg.reg.bonus!=null?cfg.reg.bonus:10)+
+        num('同一IP最多发放次数(0=全停)','reg.ipCap',cfg.reg&&cfg.reg.ipCap!=null?cfg.reg.ipCap:3)+
+        num('同一设备最多发放次数(0=全停)','reg.didCap',cfg.reg&&cfg.reg.didCap!=null?cfg.reg.didCap:2)+
+        '<div class="muted" style="font-size:11.5px;margin:2px 0 6px">★ 新号注册即送，直接进余额（可提现）；同 IP / 同设备注册超过次数后只建号不再送；金额 0 或开关 0 都等于关闭。</div>'+
+      '</div>'+
+      '<div class="card"><div style="font-weight:700;margin-bottom:10px">大厅与玩法</div>'+
+        '<div class="row" style="margin-bottom:10px"><span class="muted" style="font-size:12.5px">维护模式</span>'+
+          '<div class="switch'+(cfg.maintenance&&cfg.maintenance.on?' on':'')+'" id="sw-mt"></div></div>'+
+        '<div class="fld"><label>维护提示语</label><input id="f-mtmsg" value="'+esc(cfg.maintenance&&cfg.maintenance.msg||'')+'"></div>'+
+        '<div class="muted" style="font-size:12px">大厅模块开关：'+
+          Object.keys(cfg.lobby.quick||{}).map(function(k){
+            return '<label style="display:inline-flex;align-items:center;gap:5px;margin:4px 8px 0 0"><input type="checkbox" data-lq="'+k+'"'+((cfg.lobby.quick||{})[k]?' checked':'')+'>'+esc(k)+'</label>'}).join('')+
+        '</div>'+
+        '<div class="fld"><label>盲注级别（每行一个，格式 小盲/大盲，如 1/2）</label>'+
+          '<textarea id="f-blinds" rows="8" style="width:100%;box-sizing:border-box;background:#111823;color:#e8eef7;border:1px solid #26324a;border-radius:8px;padding:8px;font-size:12.5px;line-height:1.55">'+esc(blindTxt)+'</textarea></div>'+
+        '<div class="muted" style="font-size:11.5px;margin:2px 0 8px">★ 玩家端「创建房间 → ② 盲注级别」和「筛选牌桌 → 盲注级别」都读这里的档位；保存后立刻生效，不用重启服务。</div>'+
+      '</div>'+
+      '<div class="card"><div style="font-weight:700;margin-bottom:10px">支付与风控</div>'+
+        '<div class="muted" style="font-size:12px;margin-bottom:10px">支付适配器：<b style="color:'+((cfg.pay&&cfg.pay.provider)==='none'?'var(--gold)':'#7fe3a8')+'">'+esc((cfg.pay&&cfg.pay.provider)||'none')+'</b> · '+
+          ((cfg.pay&&cfg.pay.provider)==='none'?'未接入（不生成收款地址）':'已接入')+'</div>'+
+        num('充值 / 提现开关（1 开 0 关）','pay.enabled',(cfg.pay&&cfg.pay.enabled!==false)?1:0)+
+        num('提现单笔固定手续费（USDT）','pay.feeFlat',cfg.pay&&cfg.pay.feeFlat)+
+        num('充值单笔最小（USDT）','pay.limits.perTxMin',cfg.pay&&cfg.pay.limits&&cfg.pay.limits.perTxMin)+
+        num('充值单笔最大（USDT）','pay.limits.perTxMax',cfg.pay&&cfg.pay.limits&&cfg.pay.limits.perTxMax)+
+        num('充值单日上限（USDT）','pay.limits.day',cfg.pay&&cfg.pay.limits&&cfg.pay.limits.day)+
+        num('充值单月上限（USDT）','pay.limits.month',cfg.pay&&cfg.pay.limits&&cfg.pay.limits.month)+
+        '<div class="muted" style="font-size:11.5px;margin:-2px 0 8px">★ 上面四项<b>只约束充值</b>；提现不限额度（有多少提多少），只按单笔固定手续费扣 2 USDT。'+
+          'USDT ⇄ USDT 的兑换免费（1 USDT = ' + esc((cfg.econ&&cfg.econ.chipPerUsdt)||100) + ' USDT）。</div>'+
+        '<div class="row" style="margin:6px 0 10px"><span class="muted" style="font-size:12.5px">KYC 实名闸门</span>'+
+          '<div class="switch'+((cfg.pay&&cfg.pay.kycRequired!==false)?' on':'')+'" id="sw-kyc"></div></div>'+
+        '<div class="muted" style="font-size:11.5px">★ 平台不生成、不托管任何资金地址；充值地址与出款由持牌方的 PSP / 托管钱包完成。</div>'+
+      '</div>'+
+      '<div class="card"><div style="font-weight:700;margin-bottom:10px">应用名称与任务奖励</div>'+
+        '<div class="fld"><label>应用名称（登录页 + 大厅顶栏展示）</label><input id="f-app.name" value="'+esc((cfg.app&&cfg.app.name)||'GU9')+'"></div>'+
+        '<div class="muted" style="font-size:11.5px;margin:-4px 0 8px">★ 大厅顶栏已不再显示玩家昵称 / VIP / ID（避免截图泄露账号），这里只显示上面这个名字。'+
+          '改名后点下方「保存全部配置」生效。</div>'+
+        '<div style="height:1px;background:var(--line);margin:14px 0"></div>'+
+        '<div style="font-weight:700;margin-bottom:8px">🎨 主 Logo（APP 图标）</div>'+
+        '<div class="row gap8" style="align-items:flex-start;flex-wrap:wrap">'+
+          '<div id="brd-prev" style="width:96px;height:96px;flex:0 0 auto;border-radius:16px;border:1px solid var(--line);'+
+            'background:radial-gradient(circle at 50% 32%,rgba(245,195,82,.18),rgba(9,14,21,.55) 78%);'+
+            'display:flex;align-items:center;justify-content:center;overflow:hidden"></div>'+
+          '<div class="col gap8" style="flex:1;min-width:240px">'+
+            '<div class="row gap8" style="align-items:center;flex-wrap:wrap">'+
+              '<input type="file" id="brd-file" accept=".png,.jpg,.jpeg,.webp" style="max-width:260px">'+
+              '<button class="btn sm" id="brd-up">上传 Logo</button>'+
+              '<button class="btn sm ghost" id="brd-reset">恢复默认</button>'+
+            '</div>'+
+            '<div id="brd-msg" class="muted" style="font-size:12px"></div>'+
+          '</div>'+
+        '</div>'+
+        '<div class="muted" style="font-size:11.5px;margin-top:8px">★ 上传后<b>自动保存并立即生效</b>，玩家端刷新即可看到（登录页大图 + 大厅顶栏小图同步更换）。'+
+          '换图会自动删掉上一张，不会越堆越多。</div>'+
+        '<table class="t" style="max-width:640px;margin-top:10px"><tr><th>项目</th><th>建议值</th></tr>'+
+          '<tr><td>推荐尺寸</td><td><b>512 × 512 px 正方形</b>（2 倍图，两处都清晰）</td></tr>'+
+          '<tr><td>最低尺寸</td><td>256 × 256 px</td></tr>'+
+          '<tr><td>形状</td><td><b>正方形</b>。登录页 118×150、顶栏 34×34 都按 contain 等比缩放，非正方形会留白边</td></tr>'+
+          '<tr><td>格式 / 大小</td><td>PNG（<b>建议透明底</b>，会叠在深色背景上）/ JPG / WEBP，≤ 2MB</td></tr>'+
+          '<tr><td>构图</td><td>主体放在中间 <b>80%</b> 区域内，四周留白；顶栏只有 34px，细节太多会糊成一团</td></tr>'+
+          '<tr><td>上传后</td><td>前端本地先压到 ≤512px，再上传；换 Logo 只影响图片，<b>不影响应用名称</b></td></tr></table>'+
+        '<div class="fld"><label>签到奖励（USDT，逗号分隔；第 N 项 = 连续第 N 天送多少）</label><input id="f-tasks.signin" value="'+esc(((cfg.tasks&&cfg.tasks.signin)||[]).join(','))+'"></div>'+
+        '<div class="muted" style="font-size:11.5px;margin:-4px 0 8px">★ 当前规则：第 1 天 1 USDT、第 2 天 2 … 第 7 天 7（填 <b>1,2,3,4,5,6,7</b>）。'+
+          '写几个数就是几天一轮；断签从第 1 天重来。改完玩家下次进任务页即生效。</div>'+
+        num('签到累计文案值（USDT）','tasks.signinTotal',(cfg.tasks&&cfg.tasks.signinTotal)||0)+
+        '<div class="muted" style="font-size:12px;margin:2px 0 6px">★ 每日 / 成长任务已下线（2026-10-03）：任务页只保留签到，'+
+          '服务端 <code>/papi/tasks/claim</code> 一律拒绝，USDT只能靠充值、签到与后台人工发放获得。</div>'+
+        Object.keys(TASK_NAMES).map(function(id){
+          var v=(cfg.tasks&&cfg.tasks.rewards&&cfg.tasks.rewards[id]!=null)?cfg.tasks.rewards[id]:0;
+          return '<div class="fld"><label>#'+esc(id)+' '+esc(TASK_NAMES[id])+'</label><input id="f-tasks.r'+esc(id)+'" type="number" step="any" value="'+esc(v)+'"></div>';
+        }).join('')+
+      '</div>'+
+      '<div class="card"><div style="font-weight:700;margin-bottom:10px">客服配置</div>'+
+        '<div class="row" style="margin-bottom:12px;flex-wrap:wrap"><span style="font-size:12.5px">启用第三方客服（关闭则玩家端用内置演示客服）</span>'+
+          '<div class="switch'+((cfg.support&&cfg.support.enabled)?' on':'')+'" id="sw-support"></div>'+
+          '<span class="muted" style="font-size:12px">当前：'+((cfg.support&&cfg.support.enabled)?'开启':'<b style="color:#ffa4a7">已关闭</b>')+'</span></div>'+
+        '<div class="fld"><label>第三方客服链接（http/https，玩家端客服中心「在线客服」按钮将跳转到此地址）</label><input id="f-support.url" value="'+esc((cfg.support&&cfg.support.url)||'')+'" placeholder="https://your-customer-service.widget/..."></div>'+
+        '<div class="muted" style="font-size:11.5px;margin:2px 0 6px">★ 例如 Crisp / Intercom / 自建客服系统 的挂件地址或聊天页链接；只支持 http/https，保存时会校验，非法地址会被拒绝。</div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="row" style="margin-top:14px"><button class="btn gold" id="cfg-save">保存全部配置</button>'+
+    '<span class="muted" style="font-size:12px">保存后立即对所有在线客户端生效（下次进入牌桌时拉取）</span></div>';
+  var mt=!!(cfg.maintenance&&cfg.maintenance.on);
+  $('#sw-mt').onclick=function(){mt=!mt;this.classList.toggle('on',mt)};
+  /* ★ 2026-10-03：主 Logo —— 上传即生效（服务端直接写 config.app.logo），单独维护当前值 */
+  BRD.logo=(cfg.app&&cfg.app.logo)||'';
+  drawBrand();
+  $('#brd-up').onclick=async function(){
+    var f=$('#brd-file').files[0];
+    if(!f){$('#brd-msg').textContent='先选一张图片';return}
+    $('#brd-msg').textContent='处理中…';
+    logoCompress(f,async function(dataUrl,info){
+      if(!dataUrl){$('#brd-msg').textContent='✘ 读不出图片，换一张试试';return}
+      $('#brd-msg').textContent='上传中…（'+Math.round(dataUrl.length/1024)+'KB）';
+      var x=await api('/admin/extra/brand/upload',{method:'POST',body:{name:'logo.png',data:dataUrl}});
+      if(x.code===200&&x.j.url){
+        BRD.logo=x.j.url;drawBrand();
+        $('#brd-msg').textContent='✔ 已上传并生效：'+info+' → '+Math.round(x.j.size/1024)+'KB';
+        toast('Logo 已更换，玩家端刷新即可看到','ok');
+      }else $('#brd-msg').textContent='✘ '+(x.j.msg||x.code);
+    });
+  };
+  $('#brd-reset').onclick=async function(){
+    if(!BRD.logo){$('#brd-msg').textContent='当前已经是内置默认 Logo';return}
+    if(!confirm('恢复内置默认 Logo？\n会删除已上传的 Logo 图片文件，此操作不可恢复。'))return;
+    var x=await api('/admin/extra/brand/reset',{method:'POST',body:{}});
+    if(x.code!==200){toast('恢复失败：'+(x.j.msg||x.code),'err');return}
+    BRD.logo='';drawBrand();$('#brd-msg').textContent='✔ 已恢复内置默认 Logo';
+    toast('已恢复默认 Logo','ok');
+  };
+  var kycOn=!!(cfg.pay&&cfg.pay.kycRequired!==false);
+  $('#sw-kyc').onclick=function(){kycOn=!kycOn;this.classList.toggle('on',kycOn)};
+  var botsOn=!!(cfg.bots&&cfg.bots.on!==false);
+  $('#sw-bots').onclick=function(){botsOn=!botsOn;this.classList.toggle('on',botsOn)};
+  var supportOn=!!(cfg.support&&cfg.support.enabled);
+  $('#sw-support').onclick=function(){supportOn=!supportOn;this.classList.toggle('on',supportOn)};
+  $('#cfg-save').onclick=async function(){
+    var reb=$('#f-rebate').value.split(',').map(function(x){return +x.trim()||0});
+    var quick={};document.querySelectorAll('[data-lq]').forEach(function(c){quick[c.dataset.lq]=c.checked});
+    /* ★ 2026-10-07 盲注档位：支持换行 / 逗号分隔；只保留「数字/数字」且都 >0 的档位，
+       脏数据不落库（否则玩家端会解析出 NaN 档位，建房直接建出瞎房间）。 */
+    var blindsArr=($('#f-blinds').value||'').split(/[\n,，;；]+/).map(function(x){return x.trim()}).filter(function(x){return !!x})
+      .filter(function(x){var p=x.split('/');return p.length===2&&isFinite(+p[0])&&isFinite(+p[1])&&+p[0]>0&&+p[1]>0});
+    var body={config:{
+      think:{min:+$('#f-think.min').value,max:+$('#f-think.max').value},
+      ai:{iters:+$('#f-ai.iters').value,vbetEq:+$('#f-ai.vbetEq').value,raiseEq:+$('#f-ai.raiseEq').value,
+          semiBluff:+$('#f-ai.semiBluff').value,airFold:+$('#f-ai.airFold').value},
+      econ:{chipPerUsdt:+$('#f-econ.chipPerUsdt').value,rakePct:+$('#f-econ.rakePct').value,
+            rakeCapBB:+$('#f-econ.rakeCapBB').value,rebate:reb},
+      /* ★ 2026-10-07 注册赠送：开关/金额/同 IP 上限/同设备上限 */
+      reg:{on:(+$('#f-reg.on').value)!==0,bonus:Math.max(0,+$('#f-reg.bonus').value||0),
+           ipCap:Math.max(0,Math.round(+$('#f-reg.ipCap').value||0)),
+           didCap:Math.max(0,Math.round(+$('#f-reg.didCap').value||0))},
+      lobby:{quick:quick,banners:(cfg.lobby&&cfg.lobby.banners)||{},blinds:blindsArr},
+      maintenance:{on:mt,msg:$('#f-mtmsg').value},
+      /* 机器人总开关：关后前端不安排机器人陪坐、强制关控水 */
+      bots:{on:botsOn},
+      /* logo 由「上传 / 恢复默认」按钮单独写 config.app.logo；这里一起带回来，
+         防止「只改名字再保存」把已上传的 Logo 冲掉。 */
+      app:{name:$('#f-app.name').value,logo:BRD.logo},
+      tasks:{signin:$('#f-tasks.signin').value.split(',').map(function(x){return +x.trim()||0}),
+             signinTotal:+$('#f-tasks.signinTotal').value||0,
+             rewards:(function(){var o={};Object.keys(TASK_NAMES).forEach(function(id){o[id]=+$('#f-tasks.r'+id).value||0});return o})()},
+      pay:{
+        enabled:(+$('#f-pay.enabled').value)!==0,
+        feeFlat:+$('#f-pay.feeFlat').value,
+        kycRequired:kycOn,
+        limits:{perTxMin:+$('#f-pay.limits.perTxMin').value,perTxMax:+$('#f-pay.limits.perTxMax').value,
+                day:+$('#f-pay.limits.day').value,month:+$('#f-pay.limits.month').value}
+      },
+      support:{enabled:supportOn,url:supportOn?($('#f-support.url').value||'').trim():''}
+    }};
+    var rr=await api('/admin/config',{method:'PUT',body:body});
+    toast(rr.code===200?'配置已保存':'失败：'+(rr.j.msg||rr.code),rr.code===200?'ok':'err');
+    if(rr.code===200)cfg=rr.j.config;
+  };
+}
+function num(label,k,v){
+  return '<div class="fld"><label>'+esc(label)+'</label><input id="f-'+k+'" type="number" step="any" value="'+esc(v)+'"></div>';
+}
+
+/* ---------------- ★ 2026-10-03：APP 主 Logo ---------------- */
+var BRD={logo:''};
+function drawBrand(){
+  var box=$('#brd-prev');if(!box)return;
+  if(BRD.logo) box.innerHTML='<img src="'+esc(BRD.logo)+'" style="max-width:100%;max-height:100%;object-fit:contain" onerror="this.parentNode.innerHTML=\'<span class=muted>加载失败</span>\'">';
+  else box.innerHTML='<span class="muted" style="font-size:12px">内置默认<br>Logo</span>';
+}
+/* 把选中的 Logo 压到 ≤512px（保留透明通道 → PNG），返回 dataURL 和一句尺寸说明 */
+function logoCompress(file,cb){
+  var rd=new FileReader();
+  rd.onerror=function(){cb(null,'')};
+  rd.onload=function(){
+    var img=new Image();
+    img.onerror=function(){cb(null,'')};
+    img.onload=function(){
+      var W=img.naturalWidth||img.width,H=img.naturalHeight||img.height;
+      if(!W||!H){cb(null,'');return}
+      var MAX=512,w=W,h=H;
+      if(w>MAX||h>MAX){var k=MAX/Math.max(w,h);w=Math.round(w*k);h=Math.round(h*k)}
+      var cv=document.createElement('canvas');
+      cv.width=w;cv.height=h;
+      var cx=cv.getContext('2d');
+      cx.clearRect(0,0,w,h);
+      try{cx.drawImage(img,0,0,w,h)}catch(e){cb(null,'');return}
+      /* 先试 PNG（保透明），太大再退 JPEG —— 服务端上限 2MB */
+      var out=cv.toDataURL('image/png');
+      if(out.length>1.6*1024*1024) out=cv.toDataURL('image/jpeg',0.9);
+      cb(out,W+'×'+H+' → '+w+'×'+h);
+    };
+    img.src=rd.result;
+  };
+  rd.readAsDataURL(file);
+}
+
+/* ==================================================================
+   2026-10-02 新增页：房间管理 / 牌局记录 / USDT流水 / 工单 / 举报
+                     / 邮件公告 / 风控 / AI 与透视
+   ================================================================== */
+function bar(fields){return '<div class="row" style="margin-bottom:12px;flex-wrap:wrap">'+fields+'</div>'}
+function empty(cols,txt){return '<tr><td colspan="'+cols+'" class="muted" style="padding:22px;text-align:center">'+(txt||'没有数据')+'</td></tr>'}
+/* CSV 导出：必须用 fetch 带上 Authorization（location.href 带不了请求头，会被 401 拦下） */
+async function download(type){
+  try{
+    var r=await fetch(API+'/admin/extra/export?type='+type,{headers:{'Authorization':'Bearer '+TOKEN}});
+    if(r.status!==200){toast('导出失败 '+r.status,'err');return}
+    var b=await r.blob(),url=URL.createObjectURL(b),a=document.createElement('a');
+    a.href=url;a.download=type+'-'+new Date().toISOString().slice(0,10)+'.csv';
+    document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+    toast('已导出 '+type,'ok');
+  }catch(e){toast('导出失败：'+e.message,'err')}
+}
+
+/* ---------------- 房间管理 ---------------- */
+var roomQ='';
+async function loadRooms(){
+  var r=await api('/admin/extra/rooms?q='+encodeURIComponent(roomQ));
+  if(r.code!==200){$('#view').innerHTML='<div class="card">加载失败：'+esc(r.j.msg||r.code)+'</div>';return}
+  var list=r.j.list||[];
+  $('#view').innerHTML='<div class="card">'+
+    bar('<input id="r-q" placeholder="房间号 / 名称 / 房主 / 成员" value="'+esc(roomQ)+'" style="width:260px">'+
+        '<button class="btn gold sm" id="r-search">搜索</button>'+
+        '<button class="btn ghost sm" id="r-reload">刷新</button>'+
+        '<div style="flex:1"></div>'+
+        '<button class="btn sm" id="r-sweep">清理 24h 无活动</button>'+
+        '<span class="muted">共 '+list.length+' 间</span>')+
+    '<div style="overflow:auto"><table><thead><tr>'+
+      '<th>房间号</th><th>名称</th><th>玩法</th><th>盲注</th><th>座位</th><th>房主</th><th>成员</th><th>类型</th><th>最后活动</th><th>操作</th>'+
+    '</tr></thead><tbody>'+
+    (list.length?list.map(function(rm){
+      var others=rm.seats.filter(function(s){return !s.isOwner}).map(function(s){return esc(s.name)}).join('、');
+      return '<tr'+(rm.stale?' class="muted"':'')+'>'+
+        '<td class="mono">'+esc(rm.no)+'</td><td>'+esc(rm.name)+'</td>'+
+        '<td>'+esc(rm.modeKey)+'</td><td class="mono">'+rm.sb+'/'+rm.bb+'</td>'+
+        '<td class="mono">'+rm.seats.length+' / '+rm.cap+'</td>'+
+        '<td>'+esc(rm.ownerName)+'</td>'+
+        '<td class="muted" style="max-width:220px;overflow:hidden;text-overflow:ellipsis">'+esc(others||'—')+'</td>'+
+        '<td>'+(rm.priv==='private'?'<span class="tag wait">私有</span>':'<span class="tag run">公开</span>')+(rm.hasPwd?' <span class="tag">密码</span>':'')+'</td>'+
+        '<td class="muted" style="font-size:11.5px">'+ts(rm.actAt)+(rm.stale?' · 僵死':'')+'</td>'+
+        '<td><button class="btn sm red" data-rclose="'+esc(rm.id)+'">解散</button></td></tr>';
+    }).join(''):empty(10,'没有匹配的房间'))+
+    '</tbody></table></div></div>';
+  $('#r-search').onclick=function(){roomQ=$('#r-q').value.trim();loadRooms()};
+  $('#r-q').onkeydown=function(e){if(e.key==='Enter')$('#r-search').click()};
+  $('#r-reload').onclick=loadRooms;
+  $('#r-sweep').onclick=async function(){
+    if(!confirm('清理所有超过 24 小时没有活动的房间？'))return;
+    var x=await api('/admin/extra/rooms/sweep',{method:'POST',body:{hours:24}});
+    toast(x.code===200?('已清理 '+x.j.rooms+' 间'):('失败'),x.code===200?'ok':'err');loadRooms();
+  };
+  document.querySelectorAll('[data-rclose]').forEach(function(b){b.onclick=function(){
+    if(!confirm('确定解散该房间？房间里的所有人都会被移出'))return;
+    api('/admin/extra/rooms/close',{method:'POST',body:{id:b.dataset.rclose}}).then(function(x){
+      toast(x.code===200?'房间已解散':'失败：'+(x.j.msg||x.code),x.code===200?'ok':'err');loadRooms()});
+  }});
+}
+
+/* ---------------- 牌局记录 ---------------- */
+var handQ='';
+async function loadHands(){
+  var r=await api('/admin/extra/hands?limit=200&q='+encodeURIComponent(handQ));
+  if(r.code!==200){$('#view').innerHTML='<div class="card">加载失败：'+esc(r.j.msg||r.code)+'</div>';return}
+  var list=r.j.list||[];
+  $('#view').innerHTML='<div class="card">'+
+    bar('<input id="h-q" placeholder="玩家 / 玩家ID / 房间号 / 手牌号" value="'+esc(handQ)+'" style="width:260px">'+
+        '<button class="btn gold sm" id="h-search">搜索</button>'+
+        '<button class="btn ghost sm" id="h-exp">导出 CSV</button>'+
+        '<div style="flex:1"></div>'+
+        '<span class="muted">合计 '+list.length+' 手 · 底池 '+fmt(r.j.pot)+' · 抽水 '+fmt(r.j.rake)+'</span>')+
+    '<div style="overflow:auto;max-height:70vh"><table><thead><tr>'+
+      '<th>时间</th><th>玩家</th><th>牌桌</th><th>手号</th><th>玩法</th><th>底池</th><th>抽水</th><th>返水</th><th>投入</th><th>赢得</th><th>净</th><th>公共牌</th>'+
+    '</tr></thead><tbody>'+
+    (list.length?list.map(function(h){
+      var net=(h.won||0)-(h.contrib||0);
+      return '<tr><td class="muted" style="font-size:11.5px">'+ts(h.ts)+'</td><td>'+esc(h.name)+'</td>'+
+        '<td class="muted">'+esc(h.table)+'</td><td class="mono">'+esc(h.handNo)+'</td><td>'+esc(h.mode)+'</td>'+
+        '<td class="mono">'+fmt(h.pot)+'</td><td class="mono">'+fmt(h.rake)+'</td><td class="mono">'+fmt(h.rebate)+'</td>'+
+        '<td class="mono">'+fmt(h.contrib)+'</td><td class="mono">'+fmt(h.won)+'</td>'+
+        '<td class="mono" style="color:'+(net>=0?'#7fe3a8':'#ffa4a7')+'">'+(net>=0?'+':'')+fmt(net)+'</td>'+
+        '<td class="muted mono" style="font-size:11.5px">'+esc((h.board||[]).join(' '))+'</td></tr>';
+    }).join(''):empty(12,'还没有牌局记录 —— 牌局由客户端在每手结束后上报'))+
+    '</tbody></table></div></div>';
+  $('#h-search').onclick=function(){handQ=$('#h-q').value.trim();loadHands()};
+  $('#h-q').onkeydown=function(e){if(e.key==='Enter')$('#h-search').click()};
+  $('#h-exp').onclick=function(){download('hands')};
+}
+
+/* ---------------- USDT流水 ---------------- */
+var ledQ='',ledType='';
+async function loadLedger(){
+  var r=await api('/admin/extra/ledger?limit=200&q='+encodeURIComponent(ledQ)+'&type='+encodeURIComponent(ledType));
+  if(r.code!==200){$('#view').innerHTML='<div class="card">加载失败：'+esc(r.j.msg||r.code)+'</div>';return}
+  var list=r.j.list||[];
+  var TYPES=[['','全部类型'],['admin-grant','后台发放'],['task','任务奖励'],['signin','签到'],
+    ['transfer-out','转出'],['transfer-in','转入'],['mail-gift','邮件附件']];
+  $('#view').innerHTML='<div class="card">'+
+    bar('<input id="l-q" placeholder="用户 ID / 昵称" value="'+esc(ledQ)+'" style="width:220px">'+
+        '<select id="l-t">'+TYPES.map(function(t){return '<option value="'+t[0]+'"'+(ledType===t[0]?' selected':'')+'>'+t[1]+'</option>'}).join('')+'</select>'+
+        '<button class="btn gold sm" id="l-search">筛选</button>'+
+        '<button class="btn ghost sm" id="l-exp">导出 CSV</button>'+
+        '<div style="flex:1"></div>'+
+        '<span class="muted">共 '+r.j.total+' 条 · 本页净变动 '+fmt(r.j.sum)+'</span>')+
+    '<div style="overflow:auto;max-height:70vh"><table><thead><tr>'+
+      '<th>时间</th><th>用户</th><th>类型</th><th>变动</th><th>变动后</th><th>备注</th>'+
+    '</tr></thead><tbody>'+
+    (list.length?list.map(function(x){
+      return '<tr><td class="muted" style="font-size:11.5px">'+ts(x.ts)+'</td>'+
+        '<td>'+esc(x.name)+' <span class="muted mono" style="font-size:11px">'+esc(x.uid)+'</span></td>'+
+        '<td><span class="tag '+(x.amount>=0?'on':'bad')+'">'+esc(x.type)+'</span></td>'+
+        '<td class="mono" style="color:'+(x.amount>=0?'#7fe3a8':'#ffa4a7')+'">'+(x.amount>=0?'+':'')+fmt(x.amount)+'</td>'+
+        '<td class="mono">'+fmt(x.after)+'</td><td class="muted">'+esc(x.tag||x.note||'')+'</td></tr>';
+    }).join(''):empty(6,'暂无流水'))+
+    '</tbody></table></div></div>';
+  $('#l-search').onclick=function(){ledQ=$('#l-q').value.trim();ledType=$('#l-t').value;loadLedger()};
+  $('#l-q').onkeydown=function(e){if(e.key==='Enter')$('#l-search').click()};
+  $('#l-exp').onclick=function(){download('ledger')};
+}
+
+/* ---------------- 客服工单 ---------------- */
+var tkStatus='';
+async function loadTickets(){
+  var r=await api('/admin/extra/tickets?status='+encodeURIComponent(tkStatus));
+  if(r.code!==200){$('#view').innerHTML='<div class="card">加载失败：'+esc(r.j.msg||r.code)+'</div>';return}
+  var list=r.j.list||[];
+  var ST={open:'wait',processing:'run',closed:'done'};
+  $('#view').innerHTML='<div class="card">'+
+    bar('<select id="t-st">'+
+        [['all','全部'],['open','待处理'],['processing','处理中'],['closed','已关闭']].map(function(t){
+          return '<option value="'+t[0]+'"'+(tkStatus===t[0]?' selected':'')+'>'+t[1]+'</option>'}).join('')+'</select>'+
+        '<button class="btn gold sm" id="t-go">筛选</button><button class="btn ghost sm" id="t-rl">刷新</button>'+
+        '<div style="flex:1"></div><span class="muted">共 '+list.length+' 条</span>')+
+    '<div style="overflow:auto;max-height:70vh"><table><thead><tr>'+
+      '<th>工单号</th><th>用户</th><th>类型</th><th>标题</th><th>内容</th><th>状态</th><th>时间</th><th>操作</th>'+
+    '</tr></thead><tbody>'+
+    (list.length?list.map(function(t){
+      return '<tr><td class="mono">'+esc(t.id)+'</td><td>'+esc(t.name)+'</td>'+
+        '<td class="muted">'+esc(t.type)+'</td><td>'+esc(t.title)+'</td>'+
+        '<td class="muted" style="max-width:260px;overflow:hidden;text-overflow:ellipsis" title="'+esc(t.text)+'">'+esc(t.text)+'</td>'+
+        '<td><span class="tag '+(ST[t.status]||'off')+'">'+esc(t.status)+'</span></td>'+
+        '<td class="muted" style="font-size:11.5px">'+ts(t.ts)+'</td>'+
+        '<td><button class="btn sm gold" data-tk="'+esc(t.id)+'">回复</button></td></tr>';
+    }).join(''):empty(8,'没有工单'))+
+    '</tbody></table></div></div>';
+  $('#t-go').onclick=function(){tkStatus=$('#t-st').value;loadTickets()};
+  $('#t-rl').onclick=loadTickets;
+  document.querySelectorAll('[data-tk]').forEach(function(b){b.onclick=function(){replyTicket(b.dataset.tk)}});
+}
+function replyTicket(id){
+  var t=(function(){return null})();
+  api('/admin/extra/tickets').then(function(r){
+    var list=(r.j&&r.j.list)||[];var cur=null;
+    list.forEach(function(x){if(x.id===id)cur=x});
+    if(!cur){toast('工单不存在','err');return}
+    var m=document.createElement('div');m.className='mask';
+    m.innerHTML='<div class="modal"><div class="mh">回复工单 '+esc(id)+' · '+esc(cur.name)+'</div><div class="mb">'+
+      '<div class="muted" style="font-size:12.5px;margin-bottom:8px">'+esc(cur.title)+'</div>'+
+      '<div style="background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:10px;white-space:pre-wrap">'+esc(cur.text)+'</div>'+
+      (cur.replies||[]).map(function(x){
+        return '<div style="border-left:2px solid '+(x.role==='admin'?'var(--gold)':'var(--line2)')+';padding:6px 10px;margin-bottom:6px">'+
+          '<div class="muted" style="font-size:11.5px">'+esc(x.by)+' · '+ts(x.ts)+'</div><div>'+esc(x.text)+'</div></div>'}).join('')+
+      '<div class="fld"><label>回复内容</label><textarea id="tk-text" rows="4" style="width:100%;background:var(--bg);border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:8px 10px;font-family:inherit"></textarea></div>'+
+      '<div class="row"><span class="muted" style="font-size:12.5px">回复后关闭工单</span><div class="switch" id="tk-close"></div></div>'+
+      '</div><div class="mf"><button class="btn ghost" id="tk-c">取消</button><button class="btn gold" id="tk-s">发送回复</button></div></div>';
+    document.body.appendChild(m);
+    var cls=false;
+    $('#tk-close',m).onclick=function(){cls=!cls;this.classList.toggle('on',cls)};
+    $('#tk-c',m).onclick=function(){m.remove()};
+    $('#tk-s',m).onclick=async function(){
+      var txt=$('#tk-text',m).value.trim();
+      if(!txt){toast('请填写回复内容','err');return}
+      var x=await api('/admin/extra/tickets/reply',{method:'POST',body:{id:id,text:txt,close:cls}});
+      toast(x.code===200?'已回复':'失败：'+(x.j.msg||x.code),x.code===200?'ok':'err');
+      if(x.code===200){m.remove();loadTickets()}
+    };
+  });
+}
+
+/* ---------------- 举报处理 ---------------- */
+var rpStatus='';
+async function loadReports(){
+  var r=await api('/admin/extra/reports?status='+encodeURIComponent(rpStatus));
+  if(r.code!==200){$('#view').innerHTML='<div class="card">加载失败：'+esc(r.j.msg||r.code)+'</div>';return}
+  var list=r.j.list||[];
+  $('#view').innerHTML='<div class="card">'+
+    bar('<select id="rp-st">'+[['all','全部'],['open','待处理'],['done','已处理'],['ignored','已忽略']].map(function(t){
+        return '<option value="'+t[0]+'"'+(rpStatus===t[0]?' selected':'')+'>'+t[1]+'</option>'}).join('')+'</select>'+
+        '<button class="btn gold sm" id="rp-go">筛选</button><button class="btn ghost sm" id="rp-rl">刷新</button>'+
+        '<div style="flex:1"></div><span class="muted">共 '+list.length+' 条</span>')+
+    '<div style="overflow:auto;max-height:70vh"><table><thead><tr>'+
+      '<th>工单</th><th>举报人</th><th>被举报</th><th>原因</th><th>说明</th><th>房间</th><th>状态</th><th>时间</th><th>操作</th>'+
+    '</tr></thead><tbody>'+
+    (list.length?list.map(function(x){
+      return '<tr><td class="mono">'+esc(x.id)+'</td><td>'+esc(x.byName)+'</td><td class="mono">'+esc(x.targetName)+'</td>'+
+        '<td>'+esc(x.reason)+'</td><td class="muted" style="max-width:200px;overflow:hidden;text-overflow:ellipsis" title="'+esc(x.detail)+'">'+esc(x.detail||'—')+'</td>'+
+        '<td class="mono muted">'+esc(x.roomNo||'—')+'</td>'+
+        '<td><span class="tag '+(x.status==='open'?'wait':'done')+'">'+esc(x.status)+'</span></td>'+
+        '<td class="muted" style="font-size:11.5px">'+ts(x.ts)+'</td>'+
+        '<td><button class="btn sm ghost" data-rp="'+esc(x.id)+'" data-op="done">标记已处理</button> '+
+        '<button class="btn sm red" data-rp="'+esc(x.id)+'" data-op="ban">处理并封禁</button></td></tr>';
+    }).join(''):empty(9,'没有举报'))+
+    '</tbody></table></div></div>';
+  $('#rp-go').onclick=function(){rpStatus=$('#rp-st').value;loadReports()};
+  $('#rp-rl').onclick=loadReports;
+  document.querySelectorAll('[data-rp]').forEach(function(b){b.onclick=function(){
+    var ban=b.dataset.op==='ban';
+    if(!confirm(ban?'确定封禁被举报账号并关闭这条举报？':'确定标记为已处理？'))return;
+    api('/admin/extra/reports/handle',{method:'POST',body:{id:b.dataset.rp,status:'done',ban:ban}}).then(function(x){
+      toast(x.code===200?'已处理':'失败',x.code===200?'ok':'err');loadReports()});
+  }});
+}
+
+/* ---------------- 邮件 / 全服公告 ---------------- */
+async function loadMails(){
+  var r=await api('/admin/extra/mails');
+  if(r.code!==200){$('#view').innerHTML='<div class="card">加载失败：'+esc(r.j.msg||r.code)+'</div>';return}
+  var list=r.j.list||[];
+  $('#view').innerHTML='<div class="card">'+
+    '<div style="font-weight:700;margin-bottom:10px">发送邮件 / 全服公告</div>'+
+    '<div class="fld"><label>收件人（填玩家 ID 则定向发送，填 * 或留空为全服）</label><input id="m-to" placeholder="* 或 玩家ID"></div>'+
+    '<div class="fld"><label>标题</label><input id="m-title" placeholder="系统维护通知 / 活动奖励到账"></div>'+
+    '<div class="fld"><label>正文</label><textarea id="m-body" rows="3" style="width:100%;background:var(--bg);border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:8px 10px;font-family:inherit"></textarea></div>'+
+    '<div class="row"><div class="fld" style="flex:1;margin:0"><label>附件 USDT（可空）</label><input id="m-chips" type="number" placeholder="0"></div>'+
+    '<div class="fld" style="flex:1;margin:0"><label>附件钻石（可空）</label><input id="m-dia" type="number" placeholder="0"></div></div>'+
+    '<div class="row" style="margin-top:10px"><button class="btn gold" id="m-send">发送</button>'+
+    '<span class="muted" style="font-size:12px">附件由玩家在「邮件」里主动领取，领取才到账（服务端记账，带流水）</span></div>'+
+    '</div>'+
+    '<div class="card"><div style="font-weight:700;margin-bottom:10px">已发送（最近 100 条）</div>'+
+    '<div style="overflow:auto;max-height:50vh"><table><thead><tr><th>时间</th><th>收件</th><th>标题</th><th>附件</th><th>操作</th></tr></thead><tbody>'+
+    (list.length?list.map(function(m){
+      return '<tr><td class="muted" style="font-size:11.5px">'+ts(m.ts)+'</td>'+
+        '<td>'+(m.to==='*'?'<span class="tag run">全服</span>':'<span class="mono">'+esc(m.to)+'</span>')+'</td>'+
+        '<td>'+esc(m.title)+'</td>'+
+        '<td class="mono muted">'+(m.gift?(fmt(m.gift.chips)+' USDT'+(m.gift.diamonds?' / '+fmt(m.gift.diamonds)+' 钻石':'')):'—')+'</td>'+
+        '<td><button class="btn sm red" data-mdel="'+esc(m.id)+'">删除</button></td></tr>';
+    }).join(''):empty(5,'还没有发过邮件'))+
+    '</tbody></table></div></div>';
+  $('#m-send').onclick=async function(){
+    var title=$('#m-title').value.trim();
+    if(title.length<2){toast('请填写标题','err');return}
+    var x=await api('/admin/extra/mails/send',{method:'POST',body:{
+      to:$('#m-to').value.trim()||'*',title:title,body:$('#m-body').value,
+      gift:{chips:+$('#m-chips').value||0,diamonds:+$('#m-dia').value||0}}});
+    toast(x.code===200?'已发送':'失败：'+(x.j.msg||x.code),x.code===200?'ok':'err');
+    if(x.code===200)loadMails();
+  };
+  document.querySelectorAll('[data-mdel]').forEach(function(b){b.onclick=function(){
+    api('/admin/extra/mails/delete',{method:'POST',body:{id:b.dataset.mdel}}).then(function(x){
+      toast(x.code===200?'已删除':'失败',x.code===200?'ok':'err');loadMails()});
+  }});
+}
+
+/* ---------------- 风控（余额异常跳变） ---------------- */
+
+async function loadMeContent(){
+  var r=await api('/admin/config');
+  if(r.code!==200){$('#view').innerHTML='<div class="card">加载失败</div>';return}
+  cfg=r.j.config||r.j;
+  var mc=Object.assign({},cfg.meContent||{});
+  var fields=[
+    ['walletSub','钱包副标题'],['transferSub','转账副标题'],['mailSub','邮件副标题'],['tasksSub','任务副标题'],
+    ['friendsSub','好友副标题'],['statsSub','统计副标题'],['achievementsSub','成就副标题'],['guideSub','玩法大全副标题'],
+    ['rakeSub','抽水规则副标题'],['inviteSub','邀请副标题'],['settingsSub','设置副标题'],
+    ['guideBody','玩法大全正文'],['rakeBody','抽水规则正文'],['achievementsBody','成就正文'],
+    ['transferBody','转账正文'],['mailBody','邮件正文'],['tasksBody','任务正文'],['friendsBody','好友正文'],['statsBody','统计正文']
+  ];
+  $('#view').innerHTML='<div class="card"><div style="font-weight:700;margin-bottom:8px">Me / 我的 菜单内容</div>'+
+    '<div class="muted" style="margin-bottom:14px">控制玩家端「我的」列表副标题与子页正文。保存后立即通过 <code>/papi/config</code> 下发。</div>'+
+    fields.map(function(f){
+      var isBody=f[0].indexOf('Body')>=0;
+      if(isBody) return '<div class="fld"><label>'+esc(f[1])+'</label><textarea id="mc-'+f[0]+'" rows="3" style="width:100%">'+esc(mc[f[0]]||'')+'</textarea></div>';
+      return '<div class="fld"><label>'+esc(f[1])+'</label><input id="mc-'+f[0]+'" value="'+esc(mc[f[0]]||'')+'"></div>';
+    }).join('')+
+    '<div style="margin-top:12px"><button class="btn" id="mc-save">保存 Me 内容</button></div></div>'+
+    '<div class="card" style="margin-top:12px"><div style="font-weight:700;margin-bottom:8px">快捷入口</div>'+
+    '<div class="muted">用户 / 俱乐部 / 钱包流水 / 邮件 / 任务参数：请用上方「用户」「俱乐部」「USDT流水」「邮件公告」「参数配置」页。</div></div>';
+  $('#mc-save').onclick=async function(){
+    var body={config:{meContent:{}}};
+    fields.forEach(function(f){var el=$('#mc-'+f[0]); if(el) body.config.meContent[f[0]]=el.value;});
+    var x=await api('/admin/config',{method:'PUT',body:body});
+    if(x.code===200) toast('已保存','ok'); else toast(x.j&&x.j.msg||'失败','err');
+  };
+}
+
+async function loadRisk(){
+  var r=await api('/admin/extra/risk');
+  if(r.code!==200){$('#view').innerHTML='<div class="card">加载失败：'+esc(r.j.msg||r.code)+'</div>';return}
+  var list=r.j.list||[];
+  $('#view').innerHTML='<div class="card">'+
+    '<div style="font-weight:700;margin-bottom:8px">余额异常跳变监控</div>'+
+    '<div class="muted" style="font-size:12.5px;margin-bottom:12px">'+
+    '牌局跑在浏览器里，服务端没法逐手核账；这里记录的是「单次跳变 / 24 小时累计增长越过阈值」的账号。<br>'+
+    '★ 即使有人通过了这层，真钱出口还有第二道闸：<b>兑换 USDT 只认 cashable 池</b>（只有充值到账与后台发放才增加），'+
+    '所以USDT被刷多高都兑不出去 —— 在映证 breaches 前建议直接封禁。</div>'+
+    '<div style="overflow:auto;max-height:65vh"><table><thead><tr>'+
+      '<th>用户</th><th>ID</th><th>USDT</th><th>可兑现</th><th>USDT</th><th>异常次数</th><th>注册</th><th>最后登录</th><th>状态</th><th>操作</th>'+
+    '</tr></thead><tbody>'+
+    (list.length?list.map(function(u){
+      return '<tr><td>'+esc(u.name)+'</td><td class="mono muted">'+esc(u.id)+'</td>'+
+        '<td class="mono">'+fmt(u.usdt)+'</td><td class="mono">'+fmt(u.cashable)+'</td><td class="mono">'+u.usdt+'</td>'+
+        '<td class="mono" style="color:#ffa4a7">'+u.riskFlag+'</td>'+
+        '<td class="muted" style="font-size:11.5px">'+ts(u.createdAt)+'</td><td class="muted" style="font-size:11.5px">'+ts(u.lastLogin)+'</td>'+
+        '<td>'+(u.banned?'<span class="tag off">已封禁</span>':'<span class="tag on">正常</span>')+'</td>'+
+        '<td><button class="btn sm gold" data-ru="'+esc(u.id)+'">查看</button> '+
+        (u.banned?'':'<button class="btn sm red" data-rb="'+esc(u.id)+'">封禁</button>')+'</td></tr>';
+    }).join(''):empty(10,'没有异常账号 —— 一切正常'))+
+    '</tbody></table></div></div>';
+  document.querySelectorAll('[data-ru]').forEach(function(b){b.onclick=function(){userDetail(b.dataset.ru)}});
+  document.querySelectorAll('[data-rb]').forEach(function(b){b.onclick=function(){
+    if(!confirm('确定封禁该账号？'))return;
+    api('/admin/user/'+b.dataset.rb,{method:'PATCH',body:{banned:true}}).then(function(x){
+      toast(x.code===200?'已封禁':'失败',x.code===200?'ok':'err');loadRisk()});
+  }});
+}
+
+/* ---------------- 用户详情（增强） ---------------- */
+function userDetail(id){
+  api('/admin/extra/user?id='+encodeURIComponent(id)).then(function(r){
+    if(r.code!==200){toast('读取失败','err');return}
+    var d=r.j,u=d.user,t=d.table||{};
+    var m=document.createElement('div');m.className='mask';
+    m.innerHTML='<div class="modal" style="max-width:820px"><div class="mh">'+esc(u.name)+' <span class="muted" style="font-weight:400;font-size:12px">'+esc(u.id)+' · '+esc(u.acc||'')+'</span></div>'+
+      '<div class="mb">'+
+      '<div class="grid g4">'+
+        kpi(fmt(u.usdt),'USDT 余额')+kpi(fmt(t.cashable),'可兑现额度')+
+        kpi(fmt((d.stat&&d.stat.net)||0),'累计净盈亏')+
+        kpi(fmt(t.tablePaid),'累计买入本金')+kpi(fmt(t.tableCashed),'累计取回')+kpi(fmt(t.tableBank),'桌上余额')+
+        kpi(t.riskFlag,'风控标记次数')+
+      '</div>'+
+      '<div class="muted" style="font-size:12px;margin:12px 0 6px">登录痕迹（从审计日志取，最近 12 条）</div>'+
+      '<div style="overflow:auto"><table><thead><tr><th>时间</th><th>IP</th><th>动作</th></tr></thead><tbody>'+
+        ((d.logins||[]).length?d.logins.map(function(x){
+          return '<tr><td class="muted" style="font-size:11.5px">'+ts(x.ts)+'</td><td class="mono">'+esc(x.ip)+'</td><td class="muted">'+esc(x.action)+'</td></tr>'}).join(''):empty(3,'暂无'))+
+      '</tbody></table></div>'+
+      '<div class="muted" style="font-size:12px;margin:12px 0 6px">订单（最近 30 条）</div>'+
+      '<div style="overflow:auto"><table><thead><tr><th>订单号</th><th>类型</th><th>USDT</th><th>状态</th><th>时间</th></tr></thead><tbody>'+
+        ((d.orders||[]).length?d.orders.map(function(o){
+          return '<tr><td class="mono">'+esc(o.id)+'</td><td>'+esc(o.type)+'</td><td class="mono">'+fmt(o.usdt)+'</td>'+
+            '<td>'+esc(o.statusText||o.status)+'</td><td class="muted" style="font-size:11.5px">'+ts(o.createdAt)+'</td></tr>'}).join(''):empty(5,'暂无订单'))+
+      '</tbody></table></div>'+
+      '<div class="muted" style="font-size:12px;margin:12px 0 6px">所在房间</div>'+
+      '<div style="overflow:auto"><table><thead><tr><th>房间号</th><th>名称</th><th>玩法</th><th>人数</th><th>身份</th><th>最后活动</th></tr></thead><tbody>'+
+        ((d.rooms||[]).length?d.rooms.map(function(o){
+          return '<tr><td class="mono">'+esc(o.no)+'</td><td>'+esc(o.name)+'</td><td>'+esc(o.modeKey)+'</td>'+
+            '<td class="mono">'+o.seats+'</td><td>'+(o.isOwner?'<span class="tag vip">房主</span>':'<span class="tag">成员</span>')+'</td>'+
+            '<td class="muted" style="font-size:11.5px">'+ts(o.actAt)+'</td></tr>'}).join(''):empty(6,'不在任何房间'))+
+      '</tbody></table></div>'+
+      '<div class="muted" style="font-size:12px;margin:12px 0 6px">USDT流水（最近 20 条）</div>'+
+      '<div style="overflow:auto"><table><thead><tr><th>时间</th><th>类型</th><th>变动</th><th>变动后</th><th>备注</th></tr></thead><tbody>'+
+        ((d.ledger||[]).length?d.ledger.slice(0,20).map(function(x){
+          return '<tr><td class="muted" style="font-size:11.5px">'+ts(x.ts)+'</td><td>'+esc(x.type)+'</td>'+
+            '<td class="mono" style="color:'+(x.amount>=0?'#7fe3a8':'#ffa4a7')+'">'+(x.amount>=0?'+':'')+fmt(x.amount)+'</td>'+
+            '<td class="mono">'+fmt(x.after)+'</td><td class="muted">'+esc(x.tag||'')+'</td></tr>'}).join(''):empty(5,'暂无流水'))+
+      '</tbody></table></div>'+
+      '<div class="muted" style="font-size:12px;margin:12px 0 6px">最近牌局（20 手）</div>'+
+      '<div style="overflow:auto"><table><thead><tr><th>时间</th><th>牌桌</th><th>底池</th><th>抽水</th><th>投入</th><th>赢得</th></tr></thead><tbody>'+
+        ((d.hands||[]).length?d.hands.map(function(h){
+          return '<tr><td class="muted" style="font-size:11.5px">'+ts(h.ts)+'</td><td class="muted">'+esc(h.table)+'</td>'+
+            '<td class="mono">'+fmt(h.pot)+'</td><td class="mono">'+fmt(h.rake)+'</td>'+
+            '<td class="mono">'+fmt(h.contrib)+'</td><td class="mono">'+fmt(h.won)+'</td></tr>'}).join(''):empty(6,'暂无牌局'))+
+      '</tbody></table></div>'+
+      '</div><div class="mf"><button class="btn ghost" id="ud-c">关闭</button>'+
+      '<button class="btn gold" id="ud-e">编辑用户</button></div></div>';
+    document.body.appendChild(m);
+    $('#ud-c',m).onclick=function(){m.remove()};
+    $('#ud-e',m).onclick=function(){m.remove();editUser(id)};
+  });
+}
+
+/* ---------------- AI 强度 / 透视开关 ---------------- */
+async function loadAi(){
+  var r=await api('/admin/extra/ai');
+  if(r.code!==200){$('#view').innerHTML='<div class="card">加载失败：'+esc(r.j.msg||r.code)+'</div>';return}
+  var ai=r.j.ai||{},o=r.j.oracle||{},h=r.j.house||{};
+  /* 控水实时效果（服务端机器人房统计）：样本手数 / 实际达成的机器人胜率 / bot 净盈亏 */
+  var hs=(r.j.houseStat&&r.j.houseStat.stat)||{};
+  var hsDecided=(+hs.botWin||0)+(+hs.heroWin||0);
+  var hsRate=hsDecided>0?((+hs.botWin||0)/hsDecided*100).toFixed(1):'—';
+  $('#view').innerHTML='<div class="grid g3">'+
+    '<div class="card"><div style="font-weight:700;margin-bottom:10px">机器人强度</div>'+
+      '<div class="fld"><label>强度档位（1 娱乐陪打 ∼ 5 高压桌）</label>'+
+      '<select id="a-skill">'+[1,2,3,4,5].map(function(v){
+        return '<option value="'+v+'"'+(ai.skill===v?' selected':'')+'>'+v+' · '+['娱乐陪打','休闲','标准','进阶','高压'][v-1]+'</option>'}).join('')+'</select></div>'+
+      '<div class="muted" style="font-size:12px">档位影响：蒙特卡洛模拟次数、跟注所需胜率的安全边际、接 All-in 的门槛、诈唬频率、是否做薄价值下注。</div>'+
+    '</div>'+
+    '<div class="card" style="grid-column:span 2"><div style="font-weight:700;margin-bottom:10px">透视（天眼）</div>'+
+      '<div class="row" style="margin-bottom:10px"><span style="font-size:12.5px">总开关</span><div class="switch'+(o.on?' on':'')+'" id="a-on"></div>'+
+        '<span class="muted" style="font-size:12px">当前：'+(o.on?'<b style="color:#ffa4a7">已开启</b>':'关闭')+'</span></div>'+
+      '<div class="row" style="margin-bottom:10px"><span style="font-size:12.5px">读取未来 Turn / River</span><div class="switch'+(o.board!==false?' on':'')+'" id="a-board"></div></div>'+
+      '<div class="row" style="margin-bottom:10px"><span style="font-size:12.5px">读取对手底牌</span><div class="switch'+(o.holes!==false?' on':'')+'" id="a-holes"></div></div>'+
+      '<div class="row" style="margin-bottom:10px"><span style="font-size:12.5px">真人主角同样享有（演示用）</span><div class="switch'+(o.ally?' on':'')+'" id="a-ally"></div></div>'+
+      '<div class="fld"><label>使用比例（0~1，留一部分常规决策，行为更自然）</label><input id="a-rate" type="number" step="0.05" min="0" max="1" value="'+esc(o.useRate==null?0.85:o.useRate)+'"></div>'+
+      '<div class="fld"><label>开启备注（必读：写明原因，会进日志）</label><input id="a-note" value="'+esc(o.note||'')+'" placeholder="选填，写明原因会进日志"></div>'+
+      '<div class="muted" style="font-size:11.5px">最近更新：'+(o.updatedAt?ts(o.updatedAt)+' · '+esc(o.updatedBy||''):'—')+'</div>'+
+    '</div>'+
+    /* ---- 控水：调节机器人赢面，解决「机器人太笨一直输钱」 ---- */
+    '<div class="card"><div style="font-weight:700;margin-bottom:10px">控水（机器人赢面调节）</div>'+
+      '<div class="muted" style="font-size:12px;margin-bottom:12px">只倾斜<b>发牌结果</b>，不额外给机器人任何信息，是常规运营手段；'+
+      '与上面的「透视」互斥 —— 开透视时会自动关掉控水。</div>'+
+      '<div class="muted" style="font-size:12px;margin-bottom:12px">'+
+      '<b>生效范围：仅服务端机器人房（botFill）。</b>真人自建房 / 好友房 / 私人房机器人根本不会进，'+
+      '<b>永不控盘</b>；桌上没有真人（纯机器人互打）也不控。只改发给谁的牌，不碰抽水与边池，资金守恒不变。</div>'+
+      '<div class="row" style="margin-bottom:10px"><span style="font-size:12.5px">总开关</span><div class="switch'+(h.on?' on':'')+'" id="h-on"></div>'+
+        '<span class="muted" style="font-size:12px">当前：'+(h.on?'<b style="color:#ffd970">已开启</b>':'关闭')+'</span></div>'+
+      '<div class="fld"><label>机器人目标胜率（0.05 ~ 0.90，即机器人赢下真人的手数占比）</label>'+
+        '<input id="h-rate" type="number" step="0.05" min="0.05" max="0.9" value="'+esc(h.botWinRate==null?0.30:h.botWinRate)+'"></div>'+
+      '<div class="fld"><label>执行强度（1 = 每手都按计划；越低越自然、越难察觉）</label>'+
+        '<input id="h-str" type="number" step="0.05" min="0" max="1" value="'+esc(h.strength==null?0.85:h.strength)+'"></div>'+
+      '<div class="fld"><label>机器人累计盈利止盈线（USDT，超过自动收敛）</label><input id="h-cp" type="number" value="'+esc(h.capProfit==null?2000000:h.capProfit)+'"></div>'+
+      '<div class="fld"><label>机器人累计亏损止损线（USDT，超过自动加强）</label><input id="h-cl" type="number" value="'+esc(h.capLoss==null?1000000:h.capLoss)+'"></div>'+
+      '<div class="muted" style="font-size:11.5px">最近更新：'+(h.updatedAt?ts(h.updatedAt)+' · '+esc(h.updatedBy||''):'—')+'</div>'+
+      '<div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.08);font-size:12.5px">'+
+      '<b>实际达成（服务端统计）</b>：样本 <b>'+(+hs.hands||0)+'</b> 手 · 机器人胜率 <b style="color:#ffd970">'+hsRate+(hsRate==='—'?'':'%')+'</b>'+
+      ' · 机器人净盈亏 <b style="color:'+((+hs.botNet||0)>=0?'#7fe3a8':'#ffa4a7')+'">'+((+hs.botNet||0)>=0?'+':'')+(+hs.botNet||0).toFixed(2)+' USDT</b>'+
+      '<div class="muted" style="font-size:11.5px;margin-top:4px">系统会自动按「目标 vs 实际」闭环校准每手的偏置方向；'+
+      '触发止盈/止损线后目标会自动收敛/加强。</div></div>'+
+    '</div></div>'+
+    '<div class="row" style="margin-top:14px"><button class="btn gold" id="a-save">保存</button>'+
+    '<span class="muted" style="font-size:12px">保存后客户端下次拉取配置时生效</span></div>';
+  var st={on:!!o.on,board:o.board!==false,holes:o.holes!==false,ally:!!o.ally};
+  [['a-on','on'],['a-board','board'],['a-holes','holes'],['a-ally','ally']].forEach(function(x){
+    $('#'+x[0]).onclick=function(){st[x[1]]=!st[x[1]];this.classList.toggle('on',st[x[1]])};
+  });
+  var hst={on:!!h.on};
+  $('#h-on').onclick=function(){hst.on=!hst.on;this.classList.toggle('on',hst.on)};
+  $('#a-save').onclick=async function(){
+    if(st.on && !$('#a-note').value.trim()){
+      if(!confirm('开启透视却没有填写备注。仍要继续吗？（强烈建议写明原因，便于事后追责）'))return;
+    }
+    var x=await api('/admin/extra/ai',{method:'POST',body:{
+      skill:+$('#a-skill').value,
+      oracle:{on:st.on,board:st.board,holes:st.holes,ally:st.ally,useRate:+$('#a-rate').value,note:$('#a-note').value},
+      house:{on:hst.on,botWinRate:+$('#h-rate').value,strength:+$('#h-str').value,
+             capProfit:+$('#h-cp').value,capLoss:+$('#h-cl').value}}});
+    toast(x.code===200?'已保存':'失败：'+(x.j.msg||x.code),x.code===200?'ok':'err');
+    if(x.code===200)loadAi();
+  };
+}
+
+/* ---------------- ★ 2026-10-04：机器人收支看板（赢/输/净 · 每日抽水 · 平台盈亏） ---------------- */
+async function loadBots(){
+  var r=await api('/admin/extra/botstats?days=30');
+  if(r.code!==200){$('#view').innerHTML='<div class="card">加载失败：'+esc(r.j.msg||r.code)+'</div>';return}
+  var d=r.j, T=d.totals||{}, on=!!d.botsOn;
+  var netCls=function(v){return v>=0?'#7fe3a8':'#ffa4a7'};
+  var sign=function(v){return (v>=0?'+':'')+fmt(v)};
+  var verdict=(T.platformNetAll||0)>=0
+    ? '<b style="color:#7fe3a8">✅ 机器人业务整体盈利（抽水 + 机器人净赢为正）</b>'
+    : '<b style="color:#ffa4a7">⚠️ 机器人业务整体亏损（机器人净输给真人，超过抽水收入）</b>';
+  $('#view').innerHTML=
+    '<div class="card" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">'+
+      '<div style="font-weight:700">机器人总开关</div>'+
+      '<div class="switch'+(on?' on':'')+'" id="b-on"></div>'+
+      '<span class="muted" style="font-size:12.5px">当前：'+(on?'<b style="color:#7fe3a8">开启（公共桌照常安排机器人陪坐）</b>':'<b style="color:#ffa4a7">已关闭（全场不安排机器人，控水同步关闭）</b>')+'</span>'+
+      '<button class="btn gold sm" id="b-save">保存开关</button>'+
+      '<span class="muted" style="font-size:12px">关掉后，新进入的公共牌桌不再有机器人陪坐（变为等真人的空桌）；已在桌的机器人打完本手不再补码。</span>'+
+    '</div>'+
+    '<div class="grid g4" style="margin-top:12px">'+
+      kpi(sign(T.botNetAll||0),'机器人累计净赢（正=净赚 / 负=净亏）')+
+      kpi(fmt(T.rakeAll||0),'累计抽水（全部牌桌）')+
+      kpi(sign(T.platformNetAll||0),'平台净收益（抽水+机器人净）')+
+      kpi(fmt(T.botHandsCount||0),'机器人手数')+
+      kpi(fmt(T.handsCount||0),'总手数')+
+      kpi(on?'开启':'关闭','机器人开关')+
+    '</div>'+
+    '<div class="card" style="margin-top:12px"><div style="font-weight:700;margin-bottom:8px">整体结论</div>'+verdict+
+      '<div class="muted" style="font-size:12px;margin-top:8px">平台净收益 = 累计抽水 + 机器人净赢。为正=赚，为负=亏/负。</div></div>'+
+    '<div class="card" style="margin-top:12px"><div style="font-weight:700;margin-bottom:10px">每日明细（近 30 天 · 抽水 + 机器人收支 + 平台盈亏）</div>'+
+      '<div style="overflow:auto"><table><thead><tr><th>日期</th><th>手数</th><th>抽水</th><th>机器人净</th><th>平台净（赚/亏）</th></tr></thead><tbody>'+
+      (d.daily&&d.daily.length?d.daily.slice().reverse().map(function(x){
+        return '<tr><td class="muted">'+esc(x.day)+'</td><td class="mono">'+x.hands+'</td>'+
+          '<td class="mono">'+fmt(x.rake)+'</td>'+
+          '<td class="mono" style="color:'+netCls(x.botNet)+'">'+sign(x.botNet)+'</td>'+
+          '<td class="mono" style="color:'+netCls(x.platformNet)+';font-weight:700">'+sign(x.platformNet)+' '+(x.platformNet>=0?'（赚）':'（亏）')+'</td></tr>';
+      }).join(''):empty(5,'暂无数据'))+
+      '</tbody></table></div></div>'+
+    '<div class="card" style="margin-top:12px"><div style="font-weight:700;margin-bottom:10px">近手明细（每局抽水 · 机器人净 · 平台净）</div>'+
+      '<div style="overflow:auto"><table><thead><tr><th>时间</th><th>牌桌</th><th>手号</th><th>底池</th><th>抽水</th><th>机器人净</th><th>平台净</th></tr></thead><tbody>'+
+      (d.recent&&d.recent.length?d.recent.map(function(x){
+        return '<tr><td class="muted" style="font-size:11.5px">'+ts(x.ts)+'</td><td class="muted">'+esc(x.table)+'</td>'+
+          '<td class="mono">'+esc(x.handNo)+'</td><td class="mono">'+fmt(x.pot)+'</td>'+
+          '<td class="mono">'+fmt(x.rake)+'</td>'+
+          '<td class="mono" style="color:'+netCls(x.botNet)+'">'+sign(x.botNet)+'</td>'+
+          '<td class="mono" style="color:'+netCls(x.platformNet)+';font-weight:700">'+sign(x.platformNet)+'</td></tr>';
+      }).join(''):empty(7,'暂无数据'))+
+      '</tbody></table></div>'+
+      '<div class="muted" style="font-size:12px;margin-top:10px">★ 口径：<b>机器人净</b>=机器人座位本手赢得 − 投入（正=这手机器人净赚、负=这手机器人净亏）；'+
+      '<b>平台净</b>=该手抽水 + 机器人净。平台净为正=这手赚、为负=这手亏（机器人把钱输给真人）。机器人累计净赢 = 所有机器人的净赢汇总；<b>平台净收益</b>=累计抽水 + 机器人累计净赢，才是真正判断「赚还是亏/负」的指标。</div>'+
+    '</div>';
+  var on2=on;
+  $('#b-on').onclick=function(){on2=!on2;this.classList.toggle('on',on2)};
+  $('#b-save').onclick=async function(){
+    var x=await api('/admin/config',{method:'PUT',body:{config:{bots:{on:on2}}}});
+    toast(x.code===200?'机器人开关已保存':'失败：'+(x.j.msg||x.code),x.code===200?'ok':'err');
+    if(x.code===200)loadBots();
+  };
+  clearTimeout(window.__bt);window.__bt=setTimeout(function(){if(TAB==='bots')loadBots()},30000);
+}
+
+/* ---------------- 大厅 Banner 管理：上传图片 + 排序启停 ---------------- */
+var BAN={list:[],files:[],uploadUrl:'',builtin:{}};
+async function loadBanner(){
+  var r=await api('/admin/extra/banners');
+  if(r.code!==200){$('#view').innerHTML='<div class="card">加载失败：'+esc(r.j.msg||r.code)+'</div>';return}
+  var fr=await api('/admin/extra/banner/files');
+  BAN.list=r.j.list||[];
+  BAN.builtin=r.j.builtin||{};
+  BAN.files=(fr.code===200&&fr.j.files)||[];
+  $('#view').innerHTML=
+  /* ★ 2026-10-04：重排 —— 「当前轮播」放最上面，上传图 + 内置三条老图同屏管理，
+     移除老图 → 上传新图 → 保存，一眼看清前台实际显示什么 */
+  '<div class="card"><div class="h">🗒 当前轮播（玩家端按此顺序显示）</div>'
+  +'<div class="muted" style="font-size:12px;margin:4px 0 10px">这里就是前台大厅轮播的<b>全部内容</b>：上传的图和内置的三条老图都在这里。把不想要的<b>移除</b> → <b>上传新图</b> → 点<b>「保存全部」</b>生效。</div>'
+  +'<div id="b-list"></div>'
+  +'<div class="row gap8 mt12"><button class="btn gold" id="b-save">保存全部</button>'
+  +'<button class="btn" id="b-add">新增一条（用上面上传的图）</button></div>'
+  +'<div class="muted" style="font-size:12px;margin-top:6px">注意：全部移除且没有上传新图时，玩家端会至少显示第一条默认 Banner（兜底）。</div></div>'
+  +'<div class="card mt12"><div class="h">⬆️ 上传新图</div>'
+  +'<div class="row gap8" style="align-items:center;flex-wrap:wrap">'
+  +'<input type="file" id="b-file" accept=".png,.jpg,.jpeg,.webp" style="max-width:320px">'
+  +'<button class="btn" id="b-up">上传</button>'
+  +'<span id="b-upmsg" class="muted" style="font-size:12px"></span></div>'
+  +'<div class="muted" style="font-size:12px;margin-top:6px">上传后会自动压缩到 ≤2360px 宽并重编码，<b>自动加入上面的轮播并立即保存生效</b>，玩家端刷新就能看到。</div></div>'
+  +'<div class="card mt12"><div class="h">🖼 已上传的图片（图片文件在这里清理）</div>'
+  +'<div class="row gap8" style="margin:6px 0 8px"><div class="muted grow" style="font-size:12px">服务器上已有的图片文件。删除文件会同时从轮播里移除；只是不想展示的话，直接在上面「当前轮播」里移除即可。</div>'
+  +'<button class="btn sm red" id="b-clear">🗑 清空全部</button></div>'
+  +'<div id="b-files"></div></div>'
+  +'<div class="card mt12"><div class="h">📐 图片建议尺寸（上传前先看这里）</div>'
+  +'<table class="t" style="max-width:640px"><tr><th>项目</th><th>建议值</th></tr>'
+  +'<tr><td>推荐尺寸</td><td><b>2360 × 260 px</b>（2 倍图，最清晰）</td></tr>'
+  +'<tr><td>最低尺寸</td><td>1180 × 130 px</td></tr>'
+  +'<tr><td>宽高比</td><td><b>9 : 1</b>（横幅）。比例不符会自动裁剪填满</td></tr>'
+  +'<tr><td>格式 / 大小</td><td>JPG / PNG / WEBP，≤ 3MB（建议 ≤ 500KB，加载快）</td></tr>'
+  +'<tr><td>安全区</td><td>手机窄屏会裁掉左右两侧，<b>文字 / Logo 请放在图片中部</b></td></tr>'
+  +'<tr><td>留空标题</td><td>标题和副标题都留空 = 纯图片展示，不再叠加文字</td></tr></table></div>';
+  drawFiles();
+  drawBanners();
+  $('#b-up').onclick=async function(){
+    var f=$('#b-file').files[0];
+    if(!f){$('#b-upmsg').textContent='先选一张图片';return}
+    $('#b-upmsg').textContent='处理中…';
+    /* ★ 2026-10-03：先在本地压缩再上传 —— 手机直出的大图动辄 5~10MB，以前直接被服务端 3MB 上限拒掉，
+       后台只显示一句「✘ 超过 3MB」，用户以为上传坏了。现在压到 2360px 宽、JPEG 0.85，几乎必过。 */
+    bannerCompress(f,async function(dataUrl,info){
+      if(!dataUrl){$('#b-upmsg').textContent='✘ 读不出图片，换一张试试';return}
+      $('#b-upmsg').textContent='上传中…（'+Math.round(dataUrl.length/1024)+'KB）';
+      var x=await api('/admin/extra/banner/upload',{method:'POST',body:{name:'banner.jpg',data:dataUrl}});
+      if(x.code===200&&x.j.url){
+        BAN.uploadUrl=x.j.url;
+        var fr2=await api('/admin/extra/banner/files');
+        BAN.files=(fr2.code===200&&fr2.j.files)||[];
+        addBanner(x.j.url);
+        /* ★ 上传即生效：直接把轮播列表写回服务端，不用再手动点「保存全部」。
+           以前少了这一步，玩家端 /papi/config 里 banners 一直是空的 → 前台永远看不到新图。 */
+        var s=await api('/admin/extra/banners',{method:'POST',body:{list:BAN.list,builtin:BAN.builtin}});
+        if(s.code===200){
+          BAN.list=s.j.list||[];BAN.builtin=s.j.builtin||{};markFileUsed();drawFiles();drawBanners();
+          $('#b-upmsg').textContent='✔ 已上传并生效：'+info+' → '+Math.round(x.j.size/1024)+'KB';
+          toast('已上传并生效，玩家端刷新即可看到','ok');
+        }else{
+          drawFiles();drawBanners();
+          $('#b-upmsg').textContent='已上传但保存失败：'+(s.j.msg||s.code)+'（请点下面的「保存全部」）';
+        }
+      }
+      else $('#b-upmsg').textContent='✘ '+(x.j.msg||x.code);
+    });
+  };
+  /* 一键清空：删光服务器上所有 Banner 图片 + 轮播列表归零 */
+  $('#b-clear').onclick=async function(){
+    if(!confirm('清空全部？\n会删除服务器上所有已上传的 Banner 图片文件，并把前台轮播恢复成内置默认三条。\n此操作不可恢复。'))return;
+    var x=await api('/admin/extra/banner/clear',{method:'POST',body:{}});
+    if(x.code!==200){toast('清空失败：'+(x.j.msg||x.code),'err');return}
+    BAN.list=[];BAN.files=[];BAN.uploadUrl='';BAN.builtin={};
+    toast('已清空 '+(x.j.removed||0)+' 张图片，前台恢复默认','ok');
+    drawFiles();drawBanners();
+  };
+  $('#b-add').onclick=function(){addBanner(BAN.uploadUrl)};
+  $('#b-save').onclick=async function(){
+    var x=await api('/admin/extra/banners',{method:'POST',body:{list:BAN.list,builtin:BAN.builtin}});
+    toast(x.code===200?'已保存，玩家端下次拉取配置生效':'失败：'+(x.j.msg||x.code),x.code===200?'ok':'err');
+    if(x.code===200){BAN.list=x.j.list||[];BAN.builtin=x.j.builtin||{};markFileUsed();drawFiles();drawBanners()}
+  };
+}
+/* 把选中的图片压到 ≤2360px 宽、JPEG 0.85，返回 dataURL 和一句尺寸说明 */
+function bannerCompress(file,cb){
+  var rd=new FileReader();
+  rd.onerror=function(){cb(null,'')};
+  rd.onload=function(){
+    var img=new Image();
+    img.onerror=function(){cb(null,'')};
+    img.onload=function(){
+      var W=img.naturalWidth||img.width, H=img.naturalHeight||img.height;
+      if(!W||!H){cb(null,'');return}
+      var MAXW=2360, MAXH=1200;
+      var w=W, h=H;
+      if(w>MAXW){h=Math.round(h*MAXW/w);w=MAXW}
+      if(h>MAXH){w=Math.round(w*MAXH/h);h=MAXH}
+      var cv=document.createElement('canvas');
+      cv.width=w;cv.height=h;
+      var cx=cv.getContext('2d');
+      cx.fillStyle='#101720';cx.fillRect(0,0,w,h);
+      try{cx.drawImage(img,0,0,w,h)}catch(e){cb(null,'');return}
+      var out=cv.toDataURL('image/jpeg',0.85);
+      cb(out,W+'×'+H+' → '+w+'×'+h);
+    };
+    img.src=rd.result;
+  };
+  rd.readAsDataURL(file);
+}
+function addBanner(url){
+  if(!url){toast('请先上传一张图片','err');return}
+  if(BAN.list.some(function(b){return b.img===url})){toast('这张图已在轮播列表里','err');return}
+  BAN.list.push({id:'b'+Date.now().toString(36),img:url,t:'',s:'',act:'',on:true});
+  markFileUsed();drawFiles();drawBanners();
+}
+/* 轮播列表变了 → 同步「已上传图片」上的「轮播中」标记 */
+function markFileUsed(){
+  var m={};
+  BAN.list.forEach(function(b){var x=String(b.img||'').split('/').pop();if(x)m[x]=1});
+  BAN.files.forEach(function(f){f.used=!!m[f.name]});
+}
+/* ★ 2026-10-03：老图管理 —— 列出服务器已有的图片，可加入轮播 / 直接删除清理 */
+function drawFiles(){
+  var el=$('#b-files');if(!el)return;
+  if(!BAN.files.length){el.innerHTML='<div class="muted" style="font-size:13px">（服务器上一张图都还没有，直接上传新图即可）</div>';return}
+  el.innerHTML='<div class="row" style="flex-wrap:wrap;gap:12px">'+BAN.files.map(function(x,i){
+    return '<div style="width:270px;border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:8px;background:rgba(255,255,255,.02)">'
+    +'<img src="'+esc(x.url)+'" style="width:100%;height:62px;object-fit:cover;border-radius:6px;background:#000;display:block">'
+    +'<div class="muted" style="font-size:11px;margin-top:6px;word-break:break-all">'+esc(x.name)+'</div>'
+    +'<div class="muted" style="font-size:11px">'+Math.round(x.size/1024)+'KB'
+      +(x.used?' · <b style="color:#2ecc71">轮播中</b>':' · <span style="color:#8b98a9">未使用</span>')+'</div>'
+    +'<div class="row gap8" style="margin-top:6px">'
+      +(x.used?'':'<button class="btn sm" data-use="'+i+'">加入轮播</button>')
+      +'<button class="btn sm red" data-rm="'+i+'">删除</button></div></div>';
+  }).join('')+'</div>';
+  el.querySelectorAll('[data-use]').forEach(function(b){
+    b.onclick=function(){addBanner(BAN.files[+b.dataset.use].url)};
+  });
+  el.querySelectorAll('[data-rm]').forEach(function(b){
+    b.onclick=async function(){
+      var f=BAN.files[+b.dataset.rm];
+      if(!confirm('删除这张图片？'+(f.used?'\n它正在轮播中使用，会一并从轮播列表移除。':'')))return;
+      var x=await api('/admin/extra/banner/del',{method:'POST',body:{name:f.name}});
+      if(x.code!==200){toast('删除失败：'+(x.j.msg||x.code),'err');return}
+      BAN.files.splice(+b.dataset.rm,1);
+      BAN.list=x.j.list||[];
+      toast('已删除 '+f.name,'ok');
+      drawFiles();drawBanners();
+    };
+  });
+}
+/* ★ 2026-10-04：当前轮播 = 上传的图 + 内置三条老图（b1/b2/b3），与玩家端 lobby 实际渲染一致 */
+var BAN_BUILTIN=[
+  {k:'b1',t:'百万俱乐部赛',s:'每晚 20:00 · 保底奖励 5亿USDT（≈500万 USDT）',c:'linear-gradient(120deg,#7a3f12,#c9832a)'},
+  {k:'b2',t:'USDT支持充值',s:'USDT 充值 · 签到 / 任务免费领 · 提现走风控审核',c:'linear-gradient(120deg,#1f4d8f,#2f80ed)'},
+  {k:'b3',t:'新手福利',s:'登录 7 天领 100 万USDT',c:'linear-gradient(120deg,#14603f,#2ecc71)'}
+];
+function drawBanners(){
+  var el=$('#b-list');if(!el)return;
+  var h='';
+  /* 1) 上传的图 */
+  h+=BAN.list.map(function(b,i){
+    return '<div style="display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06)">'
+    +'<img src="'+esc(b.img)+'" style="width:150px;height:36px;object-fit:cover;border-radius:6px;background:#000">'
+    +'<div style="flex:1;min-width:0"><div style="font-size:11px;color:#8b98a9;word-break:break-all">'+esc(b.img)+'</div>'
+    +'<div class="row gap8" style="margin-top:4px;flex-wrap:wrap">'
+    +'<input data-i="'+i+'" data-f="t" value="'+esc(b.t)+'" placeholder="标题（可空）" style="width:180px;background:#141c26;border:1px solid #2a3646;color:#e8eef5;border-radius:6px;padding:4px 8px;font-size:12px">'
+    +'<input data-i="'+i+'" data-f="s" value="'+esc(b.s)+'" placeholder="副标题（可空）" style="width:240px;background:#141c26;border:1px solid #2a3646;color:#e8eef5;border-radius:6px;padding:4px 8px;font-size:12px">'
+    +'</div></div>'
+    +'<label style="font-size:12px;white-space:nowrap"><input type="checkbox" data-i="'+i+'" data-f="on" '+(b.on!==false?'checked':'')+'> 启用</label>'
+    +'<button class="btn sm" data-mv="'+i+'" data-d="-1" '+(i===0?'disabled':'')+'>↑</button>'
+    +'<button class="btn sm" data-mv="'+i+'" data-d="1" '+(i===BAN.list.length-1?'disabled':'')+'>↓</button>'
+    +'<button class="btn sm red" data-del="'+i+'">删除</button></div>';
+  }).join('');
+  /* 2) 内置三条老图：显示状态跟玩家端一致（移除 = 拉黑，保存后生效） */
+  h+=BAN_BUILTIN.map(function(b){
+    var on=BAN.builtin[b.k]!==false;
+    return '<div style="display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06)'
+      +(on?'':'opacity:.45')+'">'
+    +'<div style="width:150px;height:36px;border-radius:6px;background:'+b.c+';display:flex;align-items:center;justify-content:center;flex:none">'
+      +'<span style="font-size:11px;font-weight:700;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.4)">内置</span></div>'
+    +'<div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:600">'+esc(b.t)+'</div>'
+      +'<div class="muted" style="font-size:11px;margin-top:2px">'+esc(b.s)+'</div>'
+      +'<div class="muted" style="font-size:11px;margin-top:2px">内置老图 · '+(on?'<b style="color:#2ecc71">轮播中</b>':'<span style="color:#8b98a9">已移除，保存后生效</span>')+'</div></div>'
+    +(on
+      ?'<button class="btn sm red" data-boff="'+b.k+'">移除</button>'
+      :'<button class="btn sm" data-bon="'+b.k+'">恢复</button>')
+    +'</div>';
+  }).join('');
+  var anyOn=BAN.list.length>0||BAN_BUILTIN.some(function(b){return BAN.builtin[b.k]!==false});
+  if(!anyOn) h='<div class="muted" style="font-size:13px">（全部移除了 —— 保存后玩家端会兜底显示第一条内置 Banner，建议上传新图）</div>';
+  el.innerHTML=h;
+  el.querySelectorAll('[data-f]').forEach(function(inp){
+    inp.onchange=function(){var b=BAN.list[+inp.dataset.i];if(inp.dataset.f==='on')b.on=inp.checked;else b[inp.dataset.f]=inp.value};
+  });
+  el.querySelectorAll('[data-mv]').forEach(function(btn){
+    btn.onclick=function(){var i=+btn.dataset.mv,d=+btn.dataset.d,t=BAN.list[i];BAN.list[i]=BAN.list[i+d];BAN.list[i+d]=t;drawBanners()};
+  });
+  el.querySelectorAll('[data-del]').forEach(function(btn){
+    btn.onclick=function(){BAN.list.splice(+btn.dataset.del,1);markFileUsed();drawFiles();drawBanners()};
+  });
+  el.querySelectorAll('[data-boff]').forEach(function(btn){
+    btn.onclick=function(){BAN.builtin[btn.dataset.boff]=false;drawBanners();toast('已移除「'+(BAN_BUILTIN.find(function(b){return b.k===btn.dataset.boff})||{}).t+'」，点「保存全部」生效')};
+  });
+  el.querySelectorAll('[data-bon]').forEach(function(btn){
+    btn.onclick=function(){BAN.builtin[btn.dataset.bon]=true;drawBanners()};
+  });
+}
+
+/* ---------------- USDT 链上收款：地址簿 + 入账监控 ---------------- */
+var chainOnly='';
+async function loadChain(){
+  var r=await api('/admin/extra/addr');
+  if(r.code!==200){$('#view').innerHTML='<div class="card">加载失败：'+esc(r.j.msg||r.code)+'</div>';return}
+  var list=r.j.list||[],c=r.j.chain||{},g=c.cfg||{},st=c.stats||{},last=c.last||{};
+  var d=await api('/admin/extra/deposits?limit=60&only='+chainOnly);
+  var deps=(d.code===200&&d.j.list)||[];
+
+  $('#view').innerHTML=
+    '<div class="grid g4">'+
+      kpi(st.addrs||0,'收款地址总数')+kpi(st.enabled||0,'启用中')+
+      kpi(st.deps||0,'已扫到入账')+kpi(st.unmatched||0,'待认领入账')+
+      kpi(st.matched||0,'已自动到账')+kpi(c.running?'运行中':'已停止','监控状态')+
+    '</div>'+
+
+    /* ---- 监控配置 ---- */
+    '<div class="card" style="margin-top:12px"><div style="font-weight:700;margin-bottom:10px">链上监控</div>'+
+      '<div class="muted" style="font-size:12px;margin-bottom:10px">轮询公共区块浏览器扫描 USDT 入账，命中「地址 + 金额 + 时间窗 + 确认数」后自动把USDT打到玩家账户，并同步抬升可兑现池。'+
+      '<b>本服务只读链上数据，不持有私钥、不发起任何转账。</b></div>'+
+      '<div class="row" style="margin-bottom:10px"><span style="font-size:12.5px">总开关</span><div class="switch'+(g.on?' on':'')+'" id="c-on"></div>'+
+        '<span class="muted" style="font-size:12px">当前：'+(c.running?'<b style="color:#2ecc71">运行中</b>':'<b class="muted">已停止</b>')+'</span></div>'+
+      '<div class="row" style="margin-bottom:10px"><span style="font-size:12.5px">自动到账</span><div class="switch'+(g.autoCredit?' on':'')+'" id="c-auto"></div>'+
+        '<span class="muted" style="font-size:12px">关掉则只记录入账，需人工点「补单」</span></div>'+
+      '<div class="grid g4">'+
+        '<div class="fld"><label>轮询间隔（毫秒，最小 10000）</label><input id="c-poll" type="number" value="'+esc(g.pollMs||30000)+'"></div>'+
+        '<div class="fld"><label>确认数（留空 = 按各链默认）</label><input id="c-conf" type="number" value="'+esc(g.minConf==null?'':g.minConf)+'" placeholder="默认"></div>'+
+        '<div class="fld"><label>金额容差（0.005 = 0.5%）</label><input id="c-tol" type="number" step="0.001" value="'+esc(g.tolerance==null?0.005:g.tolerance)+'"></div>'+
+        '<div class="fld"><label>订单有效期（分钟）</label><input id="c-win" type="number" value="'+esc(g.windowMin||60)+'"></div>'+
+        '<div class="fld"><label>每次回扫（小时）</label><input id="c-hours" type="number" value="'+esc(g.scanHours||24)+'"></div>'+
+        '<div class="fld"><label>TRON API Key（可选）</label><input id="c-ktron" value="'+(g.keys&&g.keys.tron?'已设置':'')+'" placeholder="留空走公共限额"></div>'+
+        '<div class="fld"><label>Etherscan API Key（可选）</label><input id="c-kevm" value="'+(g.keys&&g.keys.evm?'已设置':'')+'" placeholder="留空走公共限额"></div>'+
+        '<div class="fld"><label>Solana RPC（可选）</label><input id="c-ksol" value="'+(g.keys&&g.keys.sol?'已设置':'')+'" placeholder="留空用公共 RPC"></div>'+
+      '</div>'+
+      '<div class="row" style="margin-top:10px"><button class="btn gold" id="c-save">保存配置</button>'+
+        '<button class="btn sm" id="c-scan">立即扫描一次</button>'+
+        '<span class="muted" style="font-size:12px">上次扫描：'+(last.at?ts(last.at)+' · 新入账 '+(last.scanned||0)+' · 到账 '+(last.matched||0):'—')+
+        (last.err?' · <b style="color:#ff8a8d">'+esc(last.err)+'</b>':'')+'</span></div>'+
+    '</div>'+
+
+    /* ---- 地址簿 ---- */
+    '<div class="card" style="margin-top:12px"><div style="font-weight:700;margin-bottom:10px">收款地址簿</div>'+
+      '<div class="row" style="margin-bottom:10px;flex-wrap:wrap;gap:8px">'+
+        /* ★ 2026-10-08：新增以太坊(ERC20) + Solana(SOL)，与 server.js PAY_DEFAULT.nets 一致 */
+        '<select id="a-net">'+['TRC20','ERC20','SOL'].map(function(n){
+          return '<option value="'+n+'">'+n+'</option>'}).join('')+'</select>'+
+        '<input id="a-addr" placeholder="收款地址" style="flex:1;min-width:220px">'+
+        '<input id="a-label" placeholder="备注（如：主收-1）" style="width:180px">'+
+        '<button class="btn gold sm" id="a-add">添加地址</button>'+
+      '</div>'+
+      '<div class="muted" style="font-size:11.5px;margin-bottom:8px">'+
+        (c.nets||[]).map(function(n){return '<b>'+n.net+'</b>（确认 '+n.minConf+'）· '+esc(n.note)}).join(' &nbsp;|&nbsp; ')+
+      '</div>'+
+      (list.length?'<table><thead><tr><th>ID</th><th>网络</th><th>地址</th><th>备注</th><th>状态</th>'+
+        '<th>已用</th><th>累计入账</th><th>最近入账</th><th>操作</th></tr></thead><tbody>'+
+        list.map(function(a){
+          return '<tr><td class="mono">'+esc(a.id)+'</td><td>'+esc(a.net)+'</td>'+
+            '<td class="mono" style="font-size:11.5px;word-break:break-all;max-width:220px">'+esc(a.address)+'</td>'+
+            '<td>'+esc(a.label||'')+'</td>'+
+            '<td><span class="tag '+(a.enabled?'ok':'off')+'">'+(a.enabled?'启用':'停用')+'</span></td>'+
+            '<td class="mono">'+esc(a.used||0)+'</td><td class="mono">'+esc(a.totalUsdt||0)+' USDT</td>'+
+            '<td class="muted">'+(a.lastTs?ts(a.lastTs):'—')+'</td>'+
+            '<td><button class="btn ghost sm" data-tog="'+esc(a.id)+'">'+(a.enabled?'停用':'启用')+'</button> '+
+            '<button class="btn ghost sm" data-del="'+esc(a.id)+'">删除</button></td></tr>'}).join('')+
+        '</tbody></table>':'<div class="muted">还没有收款地址 —— 先添加一个，玩家充值才能拿到地址。</div>')+
+    '</div>'+
+
+    /* ---- 入账流水 ---- */
+    '<div class="card" style="margin-top:12px"><div class="row" style="margin-bottom:10px">'+
+      '<div style="font-weight:700">链上入账</div><div style="flex:1"></div>'+
+      '<select id="d-only">'+
+        [['','全部'],['unmatched','仅待认领'],['matched','仅已到账']].map(function(t){
+          return '<option value="'+t[0]+'"'+(chainOnly===t[0]?' selected':'')+'>'+t[1]+'</option>'}).join('')+'</select></div>'+
+      (deps.length?'<table><thead><tr><th>时间</th><th>网络</th><th>入账地址</th><th>金额</th><th>确认</th><th>归属</th><th>操作</th></tr></thead><tbody>'+
+        deps.map(function(x){
+          return '<tr><td class="muted">'+ts(x.ts)+'</td><td>'+esc(x.net)+'</td>'+
+            '<td class="mono" style="font-size:11px">'+esc(String(x.address||'').slice(0,14))+'…</td>'+
+            '<td class="mono"><b>'+esc(x.amount)+'</b> USDT</td>'+
+            '<td class="mono">'+esc(x.conf||0)+'</td>'+
+            '<td>'+(x.orderId?'<span class="tag ok">'+esc(x.orderId)+'</span> · '+esc(x.user||'')+' +'+fmt(x.credited||0):
+                    '<span class="tag wait">待认领</span>'+(x.failMsg?' '+esc(x.failMsg):''))+'</td>'+
+            '<td>'+(x.orderId?'<span class="muted">TX '+esc(String(x.txid||'').slice(0,10))+'…</span>':
+              '<input placeholder="订单号" data-claim="'+esc(x.id)+'" style="width:92px"> <button class="btn ghost sm" data-do-claim="'+esc(x.id)+'">补单</button>')+
+            '</td></tr>'}).join('')+'</tbody></table>':'<div class="muted">暂无入账记录</div>')+
+    '</div>';
+
+  var st2={on:!!g.on,auto:g.autoCredit!==false};
+  $('#c-on').onclick=function(){st2.on=!st2.on;this.classList.toggle('on',st2.on)};
+  $('#c-auto').onclick=function(){st2.auto=!st2.auto;this.classList.toggle('on',st2.auto)};
+  $('#c-save').onclick=async function(){
+    var keys={};
+    var kt=$('#c-ktron').value.trim(), ke=$('#c-kevm').value.trim(), ks=$('#c-ksol').value.trim();
+    if(kt&&kt!=='已设置')keys.tron=kt;
+    if(ke&&ke!=='已设置')keys.evm=ke;
+    if(ks&&ks!=='已设置')keys.sol=ks;
+    var x=await api('/admin/extra/chain',{method:'POST',body:{
+      on:st2.on,autoCredit:st2.auto,
+      pollMs:+$('#c-poll').value,minConf:$('#c-conf').value===''?null:+$('#c-conf').value,
+      tolerance:+$('#c-tol').value,windowMin:+$('#c-win').value,scanHours:+$('#c-hours').value,keys:keys}});
+    toast(x.code===200?'已保存':'失败：'+(x.j.msg||x.code),x.code===200?'ok':'err');
+    if(x.code===200)loadChain();
+  };
+  $('#c-scan').onclick=async function(){
+    this.textContent='扫描中…';
+    var x=await api('/admin/extra/chain/scan',{method:'POST',body:{}});
+    toast(x.code===200?('完成：新入账 '+(x.j.scanned||0)+' · 到账 '+(x.j.matched||0)+(x.j.err?' · '+x.j.err:'')):'失败：'+(x.j.msg||x.code),x.code===200?'ok':'err');
+    loadChain();
+  };
+  $('#a-add').onclick=async function(){
+    var a=$('#a-addr').value.trim();
+    if(!a)return toast('请填写收款地址','err');
+    var x=await api('/admin/extra/addr/add',{method:'POST',body:{net:$('#a-net').value,address:a,label:$('#a-label').value}});
+    toast(x.code===200?'已添加':'失败：'+(x.j.msg||x.code),x.code===200?'ok':'err');
+    if(x.code===200)loadChain();
+  };
+  document.querySelectorAll('[data-tog]').forEach(function(b){b.onclick=async function(){
+    var en=b.textContent==='启用';
+    var x=await api('/admin/extra/addr/update',{method:'POST',body:{id:this.dataset.tog,enabled:en}});
+    if(x.code!==200)toast('失败：'+(x.j.msg||x.code),'err');loadChain();
+  }});
+  document.querySelectorAll('[data-del]').forEach(function(b){b.onclick=async function(){
+    if(!confirm('确定删除这个收款地址？已产生的订单不受影响，但不会再有新订单分配到它。'))return;
+    var x=await api('/admin/extra/addr/del',{method:'POST',body:{id:this.dataset.del}});
+    if(x.code!==200)toast('失败：'+(x.j.msg||x.code),'err');loadChain();
+  }});
+  document.querySelectorAll('[data-do-claim]').forEach(function(b){b.onclick=async function(){
+    var inp=document.querySelector('[data-claim="'+this.dataset.doClaim+'"]');
+    var oid=(inp&&inp.value||'').trim();
+    if(!oid)return toast('请填写订单号','err');
+    if(!confirm('把这笔入账补到订单 '+oid+' 并立即给玩家加USDT？'))return;
+    var x=await api('/admin/extra/deposits/claim',{method:'POST',body:{depId:this.dataset.doClaim,orderId:oid}});
+    toast(x.code===200?('已补单，到账 '+fmt(x.j.usdt||0)+' USDT'):'失败：'+(x.j.msg||x.code),x.code===200?'ok':'err');
+    if(x.code===200)loadChain();
+  }});
+  $('#d-only').onchange=function(){chainOnly=this.value;loadChain()};
+}
+
+/* ---------------- 审计（role 分流：管理员操作 vs 玩家行为） ---------------- */
+var auditRole='';
+async function loadAudit(){
+  var r=await api('/admin/audit?limit=200');
+  if(r.code!==200){$('#view').innerHTML='<div class="card">加载失败</div>';return}
+  var all=r.j.list||[];
+  var list=all.filter(function(a){return !auditRole||auditRole==='all'||(a.role||'user')===auditRole});
+  $('#view').innerHTML='<div class="card">'+
+    '<div class="row" style="margin-bottom:10px">'+
+      '<b style="font-size:13px">操作日志</b>'+
+      '<select id="ad-role">'+
+        [['all','全部'],['admin','仅管理员操作'],['user','仅玩家行为']].map(function(t){
+          return '<option value="'+t[0]+'"'+(auditRole===t[0]?' selected':'')+'>'+t[1]+'</option>'}).join('')+'</select>'+
+      '<div class="spacer" style="flex:1"></div><span class="muted">共 '+list.length+' / '+all.length+' 条</span>'+
+    '</div><div class="audit">'+
+    (list.length?list.map(function(a){
+      var isAdmin=(a.role==='admin');
+      return '<div><span class="t">'+ts(a.ts)+'</span>'+
+        '<span class="tag '+(isAdmin?'wait':'off')+'" style="min-width:56px;text-align:center">'+(isAdmin?'管理员':'玩家')+'</span>'+
+        '<span class="mono" style="min-width:120px">'+esc(a.action)+'</span>'+
+        '<span class="mono muted">'+esc(a.admin||'')+'</span>'+
+        '<span>'+esc(a.detail||'')+'</span>'+
+        '<span class="muted" style="margin-left:auto">'+esc(a.target||'')+'</span>'+
+        '<span class="muted" style="min-width:110px;text-align:right">'+esc(a.ip||'')+'</span></div>'
+    }).join(''):'<div class="muted">暂无记录</div>')+'</div></div>';
+  $('#ad-role').onchange=function(){auditRole=this.value;loadAudit()};
+}
+
+/* 启动：先验证会话是否有效 */
+(async function(){
+  if(!TOKEN)return renderLogin();
+  try{
+    var r=await api('/admin/me');
+    if(r.code===200)render();else renderLogin();
+  }catch(e){renderLogin()}
+})();
+</script>
+</body>
+</html>
+
+
+
+
+

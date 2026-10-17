@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-cache, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<title>GU9 · 德州扑克</title>
+<!-- ★★★ 2026-10-05：好友房与机器人房共用同一套样式表，视觉 100% 一致 ★★★ -->
+<link rel="stylesheet" href="css/style.css?v=20261006n" />
+<link rel="stylesheet" href="css/table.css?v=20261006n" />
+<style>
+  .hide{display:none !important}
+  html,body{height:100%;overflow:hidden;overscroll-behavior:none}
+  #screen-root{height:100vh;height:100dvh}
+  .table-top{padding-top:calc(10px + env(safe-area-inset-top))}
+  .action-bar{padding-bottom:calc(12px + env(safe-area-inset-bottom))}
+  .rt-roomno{font-weight:700;font-size:15px;max-width:96px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #buyMask{align-items:flex-end;padding:0}
+  #buyMask .modal{max-width:360px;border-radius:16px 16px 0 0;border-bottom:none;
+    animation:slideUp .24s cubic-bezier(.2,1,.4,1);padding:12px 16px calc(12px + env(safe-area-inset-bottom))}
+  .buy-sheet .bs-head{display:flex;align-items:baseline;gap:8px;margin-bottom:8px}
+  .buy-sheet .bs-head b{font-size:14px;flex:1}
+  .buy-sheet .bs-bal{font-size:11px;color:var(--txt3)}
+  .buy-sheet .bs-bal b{color:var(--gold);font-size:12px}
+  .buy-sheet .bs-main{display:flex;gap:8px;align-items:stretch}
+  .buy-sheet input[type=number]{flex:1;background:var(--panel2);border:1px solid var(--line2);border-radius:10px;
+    color:var(--txt);font-size:16px;font-weight:700;padding:8px 12px;outline:none;min-width:0}
+  .buy-sheet input[type=number]:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+  .buy-sheet .bs-quick{display:flex;flex-direction:column;gap:4px}
+  .buy-sheet .bs-quick .btn{padding:4px 10px;font-size:11px;border-radius:8px;line-height:1.2}
+  .buy-sheet .bs-hint{font-size:10.5px;color:var(--txt3);margin-top:6px}
+  .buy-sheet .err{margin-top:4px;min-height:0;font-size:12px}
+  .buy-sheet .err:empty{display:none}
+  .buy-sheet .bs-ok{width:100%;margin-top:10px;padding:10px 0;font-size:14px;border-radius:12px}
+  .log-list{max-height:52vh;overflow-y:auto}
+  .log-row{display:flex;gap:8px;padding:6px 2px;border-bottom:1px solid var(--line);font-size:12px;line-height:1.5}
+  .log-row .st{flex:none;width:46px;color:var(--txt3);font-size:10.5px}
+  .log-row.sys{color:var(--green)}
+  .log-row .amt{color:var(--gold);font-weight:700}
+  .chat-float{position:absolute;left:6px;right:6px;bottom:8px;z-index:20;background:rgba(255,255,255,.97);
+    border:1px solid var(--line);border-radius:14px;box-shadow:0 -8px 32px rgba(15,23,42,.12);
+    display:none;flex-direction:column;max-height:58vh;overflow:hidden}
+  .chat-float.show{display:flex}
+  .chat-float .chat-hd{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line);font-size:13px;font-weight:650}
+  .chat-float .chat-hd .x{margin-left:auto;cursor:pointer;color:var(--txt3);font-size:17px;line-height:1}
+  .chat-float .chat-foot{display:flex;gap:7px;padding:8px 10px;border-top:1px solid var(--line)}
+  .chat-float .chat-foot input{flex:1;background:var(--panel2);border:1px solid var(--line);border-radius:10px;color:var(--txt);padding:8px 10px;font-size:13px}
+  .chat-float .chat-msgs{max-height:38vh}
+  .rail-btn .dot{position:absolute;margin:-24px 0 0 20px;background:var(--red);color:#fff;font-size:9px;
+    min-width:14px;height:14px;border-radius:7px;display:none;place-items:center;padding:0 3px}
+  .rail-btn.has-dot{position:relative}
+  .rail-btn.has-dot .dot{display:grid}
+  .prop-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+  .prop-cell{border:1px solid var(--line);border-radius:12px;padding:12px 6px 10px;text-align:center;
+    cursor:pointer;transition:transform .14s ease,background .14s ease;background:var(--panel2)}
+  .prop-cell:active{transform:scale(.96);background:var(--accent-soft);border-color:rgba(37,99,235,.35)}
+  .prop-ico{height:46px;display:flex;align-items:center;justify-content:center;margin-bottom:3px}
+  .prop-nm{font-size:13px;font-weight:650}
+  .prop-ds{font-size:10.5px;color:var(--txt3);margin-top:2px;line-height:1.35}
+  .flist{max-height:44vh;overflow:auto;margin:8px 0 0}
+  .fitem{display:flex;align-items:center;gap:10px;padding:10px 8px;border-bottom:1px solid var(--line)}
+  .fitem:last-child{border-bottom:0}
+  .fav{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;flex:none}
+  .fname{flex:1;font-size:14px}
+  .hint{font-size:11.5px;color:var(--txt3);line-height:1.5}
+  .err{color:var(--red);font-size:12.5px;min-height:16px;margin-top:6px}
+  .spin{display:inline-block;width:15px;height:15px;border:2px solid rgba(15,23,42,.15);border-top-color:var(--accent);
+    border-radius:50%;animation:rtSpin 1s linear infinite;vertical-align:-2px;margin-right:5px}
+  @keyframes rtSpin{to{transform:rotate(360deg)}}
+  input[type=range]{-webkit-appearance:none;appearance:none;height:4px;border-radius:2px;background:var(--line2);outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;
+    background:var(--accent);box-shadow:0 1px 4px rgba(37,99,235,.3);cursor:pointer}
+</style>
+<script src="js/i18n.js?v=20261006n"></script>
+<script src="js/tview.js?v=20261006n"></script>
+<script src="js/sfx-voice.js?v=20261008b"></script>
+<script src="js/props.js?v=20261006n"></script>
+</head>
+<body>
+<div id="toast-root" class="toast-root"></div>
+<div id="screen-root" class="screen-root">
+<div class="table-screen" id="rtScreen">
+  <!-- 顶栏：返回 + 牌名/房间号 + 三个点（与机器人房一致） -->
+  <div class="table-top">
+    <div class="icon-btn" id="rtBack" title="返回"><svg class="ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></div>
+    <div class="col" style="line-height:1.25;min-width:0">
+      <div class="tname" id="rtName">德州扑克</div>
+      <div class="tmeta" id="rtMeta">正在连接牌桌…</div>
+    </div>
+    <div class="grow"></div>
+    <!-- 顶栏余额胶囊已按用户要求去掉（2026-10-05） -->
+    <div class="icon-btn" id="rtMenu" title="牌桌菜单"><svg class="ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 12h.01M12 12h.01M18 12h.01"/></svg><span class="badge" id="rtChatDot" style="display:none">1</span></div>
+  </div>
+
+  <div class="table-area">
+    <!-- 侧边悬浮列：与机器人房完全一致（左上回顾 / 左下买入 / 右下聊天·离开） -->
+    <div class="side-rail left">
+      <div class="rail-btn" data-rail="history" title="手牌回顾"><svg class="ico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4a8 8 0 100 16 8 8 0 000-16zM12 7.5V12l3 2"/></svg><span>回顾</span></div>
+    </div>
+    <div class="side-rail left bottom">
+      <div class="rail-btn" data-rail="buyin" title="买入 / 加码"><svg class="ico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5h18V19H3zM3 7.5l3.5-4h11L21 7.5M16.5 13h2"/></svg><span>买入</span></div>
+    </div>
+    <div class="side-rail right">
+      <div class="rail-btn" data-rail="chat" title="牌桌聊天"><svg class="ico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H9l-5 4V5z"/></svg><span>聊天</span><span class="dot" id="rtDot">0</span></div>
+      <div class="rail-btn" data-rail="leave" title="离开牌桌"><svg class="ico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 8V5.5A1.5 1.5 0 0013.5 4h-8A1.5 1.5 0 004 5.5v13A1.5 1.5 0 005.5 20h8a1.5 1.5 0 001.5-1.5V16M9 12h11M17 8l3.5 4-3.5 4"/></svg><span>离开</span></div>
+    </div>
+
+    <div class="felt" id="felt">
+      <div id="seats"></div>
+      <div class="felt-inner"><div id="center-box"></div></div>
+    </div>
+  </div>
+
+  <!-- 底部操作条：与机器人房一致（固定吸底） -->
+  <div class="action-bar" id="action-bar"></div>
+</div>
+</div>
+
+<!-- 牌桌聊天浮层 -->
+<div class="chat-float" id="chatPanel">
+  <div class="chat-hd"><span>牌桌聊天</span><span class="x" id="chatClose">×</span></div>
+  <div class="chat-msgs" id="chatMsgs"><div class="tiny txt3" style="padding:8px 0">还没有消息，来说点什么</div></div>
+  <div class="chat-foot">
+    <input id="chatIn" placeholder="说点什么…" maxlength="120" />
+    <button class="btn sm gold" id="chatSend">发送</button>
+  </div>
+</div>
+
+<!-- 牌桌互动道具：点对手头像/座位 → 选一个扔过去（2026-10-05） -->
+<div class="mask hide" id="propMask">
+  <div class="modal buy-sheet">
+    <div class="bs-head"><b>扔个道具</b><span class="bs-bal" id="propTo">—</span></div>
+    <div class="prop-grid" id="propGrid"></div>
+    <button class="btn ghost" style="width:100%;margin-top:12px" id="propCancel">取消</button>
+  </div>
+</div>
+
+<!-- 牌桌菜单（房间号 / 邀请好友 / 买入 / 离开 都在这里） -->
+<div class="mask hide" id="menuMask">
+  <div class="modal" style="max-width:380px;max-height:86vh;overflow-y:auto">
+    <h3>牌桌菜单</h3>
+    <div class="section-title" style="margin-top:0">房间</div>
+    <div class="list">
+      <div class="li" data-m="invite"><div class="grow"><div class="li-title">邀请好友入座</div><div class="li-sub" id="mRoomNo">房间号 --</div></div><span class="b gold">›</span></div>
+      <div class="li" data-m="invite-list"><div class="grow"><div class="li-title">从好友列表邀请</div><div class="li-sub">挑好友发邀请，他同意后才入座</div></div><span class="b gold">›</span></div>
+      <div class="li" data-m="copy"><div class="grow"><div class="li-title">复制房间号</div><div class="li-sub">发给好友，他在大厅搜索就能进</div></div><span class="b gold">›</span></div>
+      <div class="li" data-m="buyin"><div class="grow"><div class="li-title">买入 / 加码</div><div class="li-sub" id="mBuy">桌上余额 --</div></div><span class="b gold">›</span></div>
+    </div>
+    <div class="section-title">牌局</div>
+    <div class="list">
+      <div class="li" data-m="history"><div class="grow"><div class="li-title">手牌回顾</div><div class="li-sub">本手牌面与动作记录</div></div><span class="b gold">›</span></div>
+    </div>
+    <div class="section-title">其他</div>
+    <div class="list">
+      <div class="li" data-m="leave"><div class="grow"><div class="li-title">离开牌桌</div><div class="li-sub">桌上余额（含盈利）全额退回账户</div></div><span class="b red">›</span></div>
+    </div>
+    <button class="btn ghost block" style="width:100%;margin-top:12px" id="menuClose">关闭</button>
+  </div>
+</div>
+
+<!-- 手牌回顾弹窗 -->
+<div class="mask hide" id="logMask">
+  <div class="modal" style="max-width:400px">
+    <h3>手牌回顾</h3>
+    <div id="logBody"></div>
+    <button class="btn ghost" style="width:100%;margin-top:12px" id="logClose">关闭</button>
+  </div>
+</div>
+
+<!-- ★ 2026-10-05 P0 修复：这里曾残留第二个 id=chatPanel 的裸 .chat-panel（无隐藏样式），
+     在 iOS Safari 以正常文档流渲染、把页面撑高近一倍 → 顶栏被顶出屏幕、底部多出一块聊天。
+     已删除，全页只保留上面那一个 .chat-float 浮层（id 不得重复）。 -->
+
+<!-- 买入弹窗 -->
+<div class="mask hide" id="buyMask">
+  <div class="modal buy-sheet">
+    <div class="bs-head"><b id="buyTitle">买入</b><span class="bs-bal">余额 <b id="buyMax">-</b></span></div>
+    <div class="bs-main">
+      <input type="number" id="buyIn" inputmode="decimal" step="0.01" placeholder="0.00" />
+      <div class="bs-quick">
+        <button class="btn ghost" id="buyMin">最小</button>
+        <button class="btn ghost" id="buyHalf">半数</button>
+        <button class="btn ghost" id="buyAll">全部</button>
+      </div>
+    </div>
+    <div class="hint bs-hint" id="buyHint"></div>
+    <div class="err" id="buyErr"></div>
+    <button class="btn gold bs-ok" id="buyOk">买入并加入牌桌</button>
+  </div>
+</div>
+
+<!-- 邀请好友弹窗 -->
+<div class="mask hide" id="invMask">
+  <div class="modal">
+    <h3>邀请好友同桌</h3>
+    <div class="hint" style="margin:6px 0 0">好友点「同意」后才会入座；他也可以直接在大厅用房间号 <b id="invNo">-</b> 搜索进入。</div>
+    <div class="row" style="margin:10px 0 0">
+      <button class="btn sm ghost" style="flex:1" id="invCopy">复制房间号</button>
+      <button class="btn sm ghost" style="flex:1" id="invRefresh">刷新好友</button>
+    </div>
+    <div class="flist" id="flist"><div class="hint">正在加载好友…</div></div>
+    <div class="err" id="invErr"></div>
+    <button class="btn ghost" style="width:100%;margin-top:10px" id="invClose">关闭</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================================
+ * table_rt.html · 好友房（真人 P2P）—— DOM/CSS 与机器人房（table.js）完全一致
+ * 状态与资金全部来自服务端 /papi/table/*；这里只负责渲染。
+ * ========================================================================== */
+(function () {
+  'use strict';
+  var HERO_SEC = 15000, GRACE_SEC = 5000;
+  var tk = (function () { try { return localStorage.getItem('gu9_token') || ''; } catch (e) { return ''; } })();
+  var params = {}; (location.search || '').replace(/^\?/, '').split('&').forEach(function (kv) { var p = kv.split('='); if (p[0]) params[decodeURIComponent(p[0])] = decodeURIComponent(p[1] || ''); });
+  var ROOM = params.room || '';
+  var ME = null, ST = null, joined = false, pollTimer = null, rafTimer = null;
+  var buyOpen = false, chatOpen = false, lastChatTs = 0;
+  /* 互动道具（2026-10-05）：propTarget=当前选中的对手；fxSeen=已播放过的特效 id */
+  var propTarget = null, propReady = false, fxSeen = {}, chatAt = 0, lastChatN = 0;
+  var dead = false, roomCheckAt = 0;   /* 房间已解散标志 / 上次查房间存在的时间（节流） */
+
+  function $(id) { return document.getElementById(id); }
+  function el(tag, cls) { var e = document.createElement(tag); if (cls) e.className = cls; return e; }
+  /* ★ 2026-10-07 修复「牌桌盲注显示小 100 倍」：这里原来还是老「分」单位的 uStr（÷100），
+     而 2026-10-06 全站 USDT 化后服务端下发金额已经是 USDT —— 于是一直把 2/4 显示成 0.02/0.04。
+     现在与 core.js 的 uStr 对齐：直接按 USDT 两位小数格式化，不再除 100。 */
+  function uStr(c) { var v = Math.round((Number(c) || 0) * 100) / 100; var neg = v < 0; if (neg) v = -v; var p = v.toFixed(2).split('.'); p[0] = p[0].replace(/\B(?=(\d{3})+(?!\d))/g, ','); return (neg ? '-' : '') + p.join('.'); }
+  /* ★ 2026-10-05：座位椭圆分布 / 卡牌 / 头像 / 倒计时环 全部搬进共享层 tview.js，
+     与机器人房（table.js）是同一份代码。这里只留本房特有的：USDT 格式化 + 网络调用。 */
+  var esc = TView.esc, cardHTML = TView.cardHTML, avatarHTML = TView.avatarHTML, streetName = TView.streetName;
+
+  function toast(msg, kind, ms) {
+    var root = $('toast-root'); if (!root) return;
+    var t = el('div', 'toast' + (kind ? ' ' + kind : ''));
+    t.textContent = msg;
+    root.appendChild(t);
+    setTimeout(function () { t.style.opacity = '0'; t.style.transition = '.25s'; setTimeout(function () { t.remove(); }, 260); }, ms || 2200);
+  }
+  function api(path, opt) {
+    opt = opt || {}; var headers = { 'Content-Type': 'application/json' }; if (tk) headers['Authorization'] = 'Bearer ' + tk;
+    return fetch('/papi' + path, { method: opt.method || 'GET', headers: headers, body: opt.body ? JSON.stringify(opt.body) : undefined })
+      .then(function (r) { return r.text().then(function (tx) { try { return { code: r.status, j: tx ? JSON.parse(tx) : {} }; } catch (e) { return { code: r.status, j: {} }; } }); })
+      .catch(function () { return { code: 0, j: {} }; });
+  }
+
+  /* ================= 下注人声播报 =================
+     每次渲染对比各座位 lastAct，有新动作就播人声（sfx-voice.js 自动选语言：
+     华语区中文女声 / 其他地区英文，call 有 3 种音色随机）。 */
+  var voicePrev = { init: false, handNo: 0, acts: {} };
+  /* 服务端 lastAct 是中文（弃牌/过牌/跟注/加注/下注…All-in 后缀），同时兼容英文动作名 */
+  function voiceMap(k) {
+    if (!k) return null;
+    if (k.indexOf('All-in') >= 0) return 'allin';
+    if (k.indexOf('弃牌') >= 0 || k === 'fold') return 'fold';
+    if (k.indexOf('过牌') >= 0 || k === 'check') return 'check';
+    if (k.indexOf('跟注') >= 0 || k === 'call') return 'call';
+    if (k.indexOf('加注') >= 0 || k.indexOf('下注') >= 0 || k === 'raise' || k === 'bet') return 'raise';
+    return null;
+  }
+  function playVoiceDiff(st) {
+    try {
+      if (typeof SfxVoice === 'undefined' || !st || !st.seats) return;
+      if (st.handNo !== voicePrev.handNo) { voicePrev.handNo = st.handNo; voicePrev.acts = {}; voicePrev.init = false; }
+      for (var i = 0; i < st.seats.length; i++) {
+        var s = st.seats[i];
+        if (!s.user || s.empty || !s.lastAct) continue;
+        var key = s.user.id + ':' + s.lastAct;
+        if (voicePrev.acts[s.user.id] === key) continue;
+        voicePrev.acts[s.user.id] = key;
+        if (!voicePrev.init) continue;      /* 首次快照只记录，不播报（避免进桌一堆历史动作齐响） */
+        var kind = voiceMap(s.lastAct);
+        if (kind) SfxVoice.play(kind, { tag: (s.user && s.user.id != null) ? s.user.id : s.idx });
+      }
+      voicePrev.init = true;
+    } catch (e) { }
+  }
+
+  /* ================= 渲染 =================
+     ★ 2026-10-05：座位 / 中央 / 卡牌 / 头像 全部走共享层 tview.js ——
+       与机器人房（table.js）是**同一份代码**，两边视觉不可能不一致。 */
+  /* ★ 2026-10-08：记录「每个座位最近一次已展示过的动作」，用于让动作气泡只在新动作发生时播一次 pop，
+     之后 render 每 700ms 重建 DOM 也不重播（否则就在玩家头顶反复跳动）。 */
+  var SHOWN_ACTS = {};
+  function render() {
+    if (!ST) return;
+    playVoiceDiff(ST);
+    var seats = ST.seats || [];
+    /* 计算每个座位本帧是否「出现了新动作」（相对上次展示） */
+    var actPopSeats = {};
+    seats.forEach(function (s) {
+      if (s.idx == null) return;
+      var key = (s.lastAct && !s.folded) ? s.lastAct : '';
+      if (key && key !== SHOWN_ACTS[s.idx]) actPopSeats[s.idx] = true;
+      SHOWN_ACTS[s.idx] = key;
+    });
+    var hero = ST.heroSeat >= 0 ? seats[ST.heroSeat] : null;
+    /* ★ 2026-10-05 修复：本手没有发到底牌（中途上桌/异常恢复）时绝不能显示下注按钮，
+       否则会出现「等待发牌」和「等待你行动」同时出现、一点就报错的卡局假象 */
+    var myTurn = ST.phase === 'playing' && ST.actingUid && hero && hero.user && hero.user.isHero && hero.hole && hero.hole.length > 0;
+    var maxBet = 0; seats.forEach(function (s) { if (!s.empty) maxBet = Math.max(maxBet, s.bet || 0); });
+
+    /* 本桌特有：谁在行动（服务端给的是 uid，换算成座位 idx）+ 倒计时 */
+    var actSeat = -1, cdMap = {};
+    for (var k = 0; k < seats.length; k++) {
+      var x = seats[k];
+      if (ST.actingUid && x.user && x.user.id === ST.actingUid && ST.phase === 'playing') {
+        actSeat = x.idx;
+        var remain = ST.now >= ST.deadline
+          ? Math.max(0, (ST.graceUntil || ST.deadline) - ST.now)
+          : Math.max(0, ST.deadline - ST.now);
+        var total = (ST.now >= ST.deadline ? GRACE_SEC : HERO_SEC);
+        cdMap[x.idx] = { on: remain > 0, left: remain / 1000, total: total };
+        break;
+      }
+    }
+    var tvOpt = {
+      heroIdx: ST.heroSeat,
+      actSeat: actSeat,
+      showdown: ST.phase === 'showdown',
+      cdMap: cdMap,
+      actPopSeats: actPopSeats,
+      fmt: uStr,
+      nameSuffix: function (s, isHero) { return isHero ? ' (你)' : ''; },
+      tags: function (s) {
+        /* 机器人不挂任何标记 —— 用户要求：要模仿跟真人一样，让别人看不出是机器人 */
+        if (s.folded) return '<div class="tag" style="margin-top:2px;font-size:10px">已弃牌</div>';
+        if (s.allin) return '<div class="tag red" style="margin-top:2px;font-size:10px">ALL-IN</div>';
+        if (s.sittingOut) return '<div class="tag" style="margin-top:2px;font-size:10px">旁观</div>';
+        return '';
+      }
+    };
+    var tv = TView.normalize(ST, { actSeat: actSeat, cdMap: cdMap });
+
+    /* 顶栏（与机器人房同结构：牌名 + 副标题；房间号在 ⋯ 菜单里）——不挂任何徽标 */
+    $('rtName').textContent = (ST && ST.mode && ST.mode.name) || '德州扑克';
+    $('rtMeta').textContent = TView.topbarMeta(tv, { fmt: uStr });
+    $('mRoomNo').textContent = '房间号 ' + (ST.no || ROOM);
+    $('mBuy').textContent = '桌上余额 ' + (hero ? uStr(hero.usdt) + ' U' : '--');
+
+    /* 中央信息（共享层） */
+    $('center-box').innerHTML = TView.renderCenter(tv, {
+      fmt: uStr,
+      streetText: ST.phase === 'waiting' ? '等待好友入座' : TView.streetName(ST.street)
+    }) + winLineHTML();
+
+    /* 座位（共享层） */
+    $('seats').innerHTML = TView.renderSeats(tv, tvOpt);
+
+    renderBar(myTurn, hero, maxBet);
+    consumeFx(ST.fx);
+    updateCd();
+  }
+  /* 本手赢家播报（摊牌后显示：👑 谁 赢得多少 · 什么牌型） */
+  function winLineHTML() {
+    var rs = (ST && ST.result) || [];
+    if (!rs.length) return '';
+    var seats = ST.seats || [];
+    var txt = rs.map(function (r) {
+      var nm = (r.name) || ((seats[r.seat] && seats[r.seat].user && seats[r.seat].user.name) || '玩家');
+      return esc(nm) + ' +' + uStr(r.amount || 0) + ' U' + (r.hand ? '（' + esc(r.hand) + '）' : '');
+    }).join(' · ');
+    return '<div class="win-line">' + TView.crownHTML(16) + '<span>' + txt + '</span></div>';
+  }
+  function phaseTxt() {
+    if (!ST) return '';
+    if (ST.phase === 'waiting') return '等待好友入座 · 房间号 ' + (ST.no || ROOM);
+    if (ST.phase === 'showdown') return '本手结束，即将开始下一手…';
+    if (ST.phase === 'playing' && ST.actingUid) {
+      var heroNow = ST.heroSeat >= 0 ? (ST.seats || [])[ST.heroSeat] : null;
+      if (heroNow && heroNow.user && heroNow.user.isHero && !(heroNow.hole && heroNow.hole.length))
+        return '这一手开始时你还没上桌 · 下一手自动给你发牌';
+      for (var i = 0; i < (ST.seats || []).length; i++) { var s = ST.seats[i]; if (s.user && s.user.id === ST.actingUid) return '等待 ' + (s.user.name || '对手') + ' 行动…'; }
+      return '等待对手行动…';
+    }
+    return '';
+  }
+
+  /* 底部操作条（与机器人房 action-bar 结构一致） */
+  function renderBar(myTurn, hero, maxBet) {
+    var bar = $('action-bar');
+    var html = '<div class="hero-info">' +
+      '<div class="cards">' + (hero && hero.hole && hero.hole.length ? hero.hole.map(function (c) { return cardHTML(c, { size: 'sm' }); }).join('') : '<span class="tiny txt3">等待发牌</span>') + '</div>' +
+      '<div class="col"><div class="b">' + esc(ME ? ME.name : '') + '</div><div class="tiny txt3">余额 ' + (hero ? uStr(hero.usdt) : '0') + '</div></div>' +
+      /* 倒计时已按用户要求去掉（2026-10-05）——服务端仍按 15s 超时托管，只是不显示 */
+      '<div class="hint">' + esc(phaseTxt()) + '</div></div>';
+
+    if (!hero || !hero.user) {
+      html += '<div class="btnrow"><button class="btn gold grow" data-hero="buyin">买入加入牌桌</button></div>';
+      bar.innerHTML = html; bindBar(); return;
+    }
+    /* ★ 2026-10-07：服务端座位字段是 usdt（不是旧的 chips）—— 字段名没跟上导致
+       「桌上余额为 0 → 补充买入」的引导永远不出现。 */
+    if (!(+hero.usdt) && ST.phase !== 'playing') {
+      html += '<div class="btnrow"><button class="btn gold grow" data-hero="buyin">' + (ME && ME.bal > 0 ? '补充买入' : '去充值') + '</button>' +
+        '<button class="btn ghost" data-hero="leave">退出</button></div>' +
+        '<div class="tiny txt3 center mt8">' + (ME && ME.bal > 0 ? '桌上余额为 0 · 补充买入后才会发牌' : '账户余额为 0 · 请先充值再买入上桌') + '</div>';
+      bar.innerHTML = html; bindBar(); return;
+    }
+    /* ★ 状态只显示一次（hero-info 的 .hint 里已有 phaseTxt，下面不再重复一行） */
+    if (!myTurn) { bar.innerHTML = html; bindBar(); return; }
+
+    var toCall = Math.max(0, maxBet - (hero.bet || 0));
+    html += '<div class="btnrow">' +
+      '<button class="btn fold" data-hero="fold">弃牌</button>' +
+      '<button class="btn ' + (toCall > 0 ? 'call' : 'check') + '" data-hero="' + (toCall > 0 ? 'call' : 'check') + '">' + (toCall > 0 ? '跟注 ' + uStr(toCall) : '过牌') + '</button>' +
+      '<button class="btn raise" data-hero="raiseToggle">' + (RAISING ? '加注 ▼' : '加注 ▲') + '</button>' +
+      '<button class="btn allin" data-hero="allin">All-in</button>' +
+      '</div>';
+    if (RAISING) html += raisePanel(hero, maxBet, toCall);
+    bar.innerHTML = html; bindBar();
+  }
+  var RAISING = false, RAISE_AMT = 0;
+  function raisePanel(hero, maxBet, toCall) {
+    var minTotal = maxBet + Math.max(ST.minRaise || ST.bb || 1, 1);
+    var maxTotal = (hero.bet || 0) + (+hero.usdt || 0);   /* ★ 2026-10-07：chips→usdt，修复加注上限恒为当前下注 */
+    if (maxTotal < minTotal) {
+      return '<div class="raise-panel"><div class="raise-row"><div class="raise-amt">' + uStr(maxTotal) + ' U</div></div>' +
+        '<div class="tiny txt3 center" style="margin-top:6px">筹码不足最小加注，只能跟注或全下</div></div>';
+    }
+    if (RAISE_AMT < minTotal || RAISE_AMT > maxTotal) RAISE_AMT = minTotal;
+    return '<div class="raise-panel">' +
+      '<div class="raise-row">' +
+      '<button class="btn ghost sm" data-hero="raiseMin">最小</button>' +
+      '<div class="raise-amt" id="raiseAmt">' + uStr(RAISE_AMT) + ' U</div>' +
+      '<button class="btn ghost sm" data-hero="raiseMax">最大</button>' +
+      '</div>' +
+      '<input type="range" id="raiseRange" min="' + minTotal + '" max="' + maxTotal + '" value="' + RAISE_AMT + '" style="width:100%;margin-top:8px" />' +
+      '<div class="raise-presets">' +
+      '<button class="btn ghost sm" data-hero="raisePot">底池 ½</button>' +
+      '<button class="btn ghost sm" data-hero="raisePot2">底池 ¾</button>' +
+      '<button class="btn gold sm" data-hero="raiseOk">确定加注</button>' +
+      '</div></div>';
+  }
+  function bindBar() {
+    var bar = $('action-bar');
+    bar.querySelectorAll('[data-hero]').forEach(function (b) {
+      b.onclick = function () {
+        var a = b.dataset.hero;
+        if (a === 'buyin') { showBuy('买入 / 加码'); return; }
+        if (a === 'leave') { doLeave(); return; }
+        if (a === 'raiseToggle') { RAISING = !RAISING; render(); return; }
+        if (a === 'raiseMin' || a === 'raiseMax' || a === 'raisePot' || a === 'raisePot2') {
+          var hero = ST.seats[ST.heroSeat], maxBet = 0;
+          ST.seats.forEach(function (x) { if (!x.empty) maxBet = Math.max(maxBet, x.bet || 0); });
+          var minTotal = maxBet + Math.max(ST.minRaise || ST.bb || 1, 1);
+          var maxTotal = (hero.bet || 0) + (+hero.usdt || 0);   /* ★ 2026-10-07：chips→usdt */
+          var toCall = Math.max(0, maxBet - (hero.bet || 0));
+          if (a === 'raiseMin') RAISE_AMT = minTotal;
+          else if (a === 'raiseMax') RAISE_AMT = maxTotal;
+          else if (a === 'raisePot') RAISE_AMT = Math.min(maxTotal, Math.max(minTotal, maxBet + toCall + ST.pot * 0.5));
+          else RAISE_AMT = Math.min(maxTotal, Math.max(minTotal, maxBet + toCall + ST.pot * 0.75));
+          render(); return;
+        }
+        if (a === 'raiseOk') {
+          var h2 = ST.seats[ST.heroSeat], mb = 0;
+          ST.seats.forEach(function (x) { if (!x.empty) mb = Math.max(mb, x.bet || 0); });
+          var tc = Math.max(0, mb - (h2.bet || 0));
+          var target = Math.max(0, Math.round(RAISE_AMT));
+          RAISING = false;
+          doAction(tc > 0 ? 'raise' : 'bet', tc > 0 ? Math.max(0, target - mb) : target);
+          return;
+        }
+        if (a === 'allin') { RAISING = false; doAction('allin'); return; }
+        if (a === 'call') {
+          var hs = ST.seats[ST.heroSeat], mx = 0;
+          ST.seats.forEach(function (x) { if (!x.empty) mx = Math.max(mx, x.bet || 0); });
+          doAction(Math.max(0, mx - (hs.bet || 0)) > 0 ? 'call' : 'check');
+          return;
+        }
+        doAction(a);
+      };
+    });
+    var rg = $('raiseRange');
+    if (rg) rg.oninput = function () { RAISE_AMT = Math.round(+rg.value); var t = $('raiseAmt'); if (t) t.textContent = uStr(RAISE_AMT) + ' U'; };
+  }
+
+  /* 倒计时环刷新：环的 markup 由共享层 tview.js 画出（.cd-ring），
+     这里只就地改数字和 stroke-dashoffset —— 不整屏重绘。 */
+  function updateCd() {
+    if (!ST) return;
+    var remain = 0, grace = false;
+    if (ST.actingUid) {
+      if (ST.now >= ST.deadline) { grace = !!(ST.graceUntil && ST.now < ST.graceUntil); remain = ((ST.graceUntil || ST.deadline) - ST.now); }
+      else remain = ST.deadline - ST.now;
+    }
+    if (remain < 0) remain = 0;
+    var ring = document.querySelector('#seats .cd-ring.on');
+    if (ring) {
+      var fg = ring.querySelector('.cd-fg'), num = ring.querySelector('.cd-num');
+      var total = (grace ? GRACE_SEC : HERO_SEC) * 1000;
+      if (fg) fg.setAttribute('stroke-dashoffset', String((119.4 * (1 - Math.min(1, remain / total))).toFixed(1)));
+      if (num) num.textContent = (remain / 1000).toFixed(0);
+      ring.classList.toggle('urgent', remain <= 5000);
+    }
+    var ht = $('heroTt');
+    if (ht) ht.textContent = (remain / 1000).toFixed(0);
+  }
+
+  /* ================= 轮询 ================= */
+  function refresh() {
+    return api('/table/state?roomNo=' + encodeURIComponent(ROOM)).then(function (r) {
+      if (r.code === 200 && r.j && r.j.ok) {
+        ST = r.j.state; joined = !r.j.spectating;   /* spectating=true：围观中（未买入也能看牌局） */
+        if (!buyOpen) $('buyMask').classList.add('hide');
+        render();
+        /* 节流拉牌桌聊天（2.5s 一次），这样别人发的消息才收得到 */
+        var now2 = Date.now();
+        if (now2 - chatAt > 2500) {
+          chatAt = now2;
+          api('/table/chat?roomNo=' + encodeURIComponent(ROOM)).then(function (c) {
+            if (c.code === 200 && c.j && c.j.ok) markChat(c.j.chat);
+          });
+        }
+        return true;
+      }
+      if (r.code === 403) { joined = false; return false; }
+      if (r.code === 404) {
+        ST = null;
+        /* 404 有两种：① 牌局还没开（谁都没买入）→ 正常弹买入框；
+           ② 房间已被解散/不存在 → 必须明确提示并停轮询，绝不能再逼人买入（2026-10-05 P0） */
+        var nowT = Date.now();
+        if (!dead && (!roomCheckAt || nowT - roomCheckAt > 5000)) {
+          roomCheckAt = nowT;
+          api('/rooms/detail?no=' + encodeURIComponent(ROOM)).then(function (d) {
+            if (dead) return;
+            if (!(d.code === 200 && d.j && d.j.room)) showDead();
+          });
+        }
+        return false;
+      }
+      return false;
+    });
+  }
+  /* 房间没了：停轮询、盖一个明确的提示层，只有「返回大厅」一条路 */
+  function showDead() {
+    if (dead) return;
+    dead = true;
+    if (pollTimer) clearInterval(pollTimer);
+    if (rafTimer) cancelAnimationFrame(rafTimer);
+    $('buyMask').classList.add('hide');
+    var m = document.createElement('div');
+    m.style.cssText = 'position:fixed;inset:0;z-index:999;background:rgba(15,23,42,.45);display:flex;align-items:center;justify-content:center';
+    m.innerHTML = '<div class="modal" style="max-width:340px;text-align:center">' +
+      '<h3 style="margin-top:0">房间已解散</h3>' +
+      '<div class="tiny txt3" style="line-height:1.7">这个房间已被房主解散或已过期。<br>桌上没有你的筹码，余额都在账户里，放心返回大厅。</div>' +
+      '<button class="btn gold block lg" id="deadBack" style="width:100%;margin-top:14px">返回大厅</button></div>';
+    document.body.appendChild(m);
+    m.querySelector('#deadBack').onclick = function () { location.href = 'index.html#lobby'; };
+  }
+  function startPoll() { if (pollTimer) clearInterval(pollTimer); pollTimer = setInterval(refresh, 700); refresh(); }
+  function tick() { updateCd(); rafTimer = requestAnimationFrame(tick); }
+
+  /* ================= 买入 ================= */
+  function showBuy(title) {
+    if (!ME) return;
+    $('buyTitle').textContent = title || '买入 USDT';
+    /* ★ 2026-10-07：买入面板全面改 USDT 直读（原来按「分」算：minIn 有个 200 分=2U 的
+     隐藏下限、输入框按 ÷100 显示，服务端 USDT 化后这些全错位）。
+     规则：最小买入 = 20bb（不足 2 U 按 2 U 兜底）；默认买入 = 100bb；上限 = 账户余额。 */
+    var bb = ST ? (ST.bb || 1) : 1;
+    var maxIn = Math.round((ME.bal || 0) * 100) / 100, minIn = Math.max(bb * 20, 2);
+    if (maxIn < minIn) { $('buyErr').textContent = 'USDT 余额不足，无法买入（至少需要 ' + uStr(minIn) + ' U）'; $('buyOk').disabled = true; }
+    else { $('buyErr').textContent = ''; $('buyOk').disabled = false; }
+    $('buyMax').textContent = uStr(maxIn) + ' U';
+    $('buyHint').textContent = '范围 ' + uStr(minIn) + ' ~ ' + uStr(maxIn) + ' U';
+    var def = Math.min(maxIn, Math.max(minIn, bb * 100));
+    $('buyIn').value = def.toFixed(2); $('buyIn').min = minIn.toFixed(2); $('buyIn').max = maxIn.toFixed(2);
+    $('buyMask').classList.remove('hide'); buyOpen = true;
+  }
+  function closeBuy() { $('buyMask').classList.add('hide'); buyOpen = false; }
+  function doBuy() {
+    /* ★ 2026-10-07：输入框已经是 USDT，两位小数后直接发（原来 ×100 当分送） */
+    var v = Math.round((Number($('buyIn').value) || 0) * 100) / 100;
+    var bb = ST ? (ST.bb || 1) : 1, minIn = Math.max(bb * 20, 2), maxIn = ME ? Math.round((ME.bal || 0) * 100) / 100 : 0;
+    v = Math.max(minIn, Math.min(maxIn, v));
+    api('/table/join', { method: 'POST', body: { roomNo: ROOM, buyIn: v } }).then(function (r) {
+      if (r.code === 200 && r.j && r.j.ok) { ME.bal = (ME.bal || 0) - v; ST = r.j.state; joined = true; closeBuy(); render(); toast(r.j.added ? ('加码 ' + uStr(r.j.added) + ' U 成功') : ('买入 ' + uStr(v) + ' U 成功')); }
+      else if (r.code === 403) $('buyErr').textContent = '你不在该房间，请先在大厅加入房间';
+      else $('buyErr').textContent = (r.j && r.j.msg) || ('买入失败(' + r.code + ')');
+    });
+  }
+
+  /* ================= 行动 ================= */
+  function doAction(type, amt) {
+    api('/table/action', { method: 'POST', body: { roomNo: ROOM, type: type, amt: amt || 0 } }).then(function (r) {
+      if (r.code === 200 && r.j && r.j.ok) { ST = r.j.state; render(); }
+      else toast((r.j && r.j.msg) || ('操作失败(' + r.code + ')'), 'err');
+    });
+  }
+  function doLeave() {
+    if (!confirm('退出牌桌将把桌上余额（USDT，含盈利）全额退回账户，确定离开房间吗？')) return;
+    api('/table/leave', { method: 'POST', body: { roomNo: ROOM } }).then(function () {
+      return api('/rooms/leave', { method: 'POST', body: { no: ROOM } });
+    }).then(function () { if (pollTimer) clearInterval(pollTimer); location.href = 'index.html#lobby'; });
+  }
+
+  /* ================= 聊天 ================= */
+  function renderChat(list) {
+    if (!list || !list.length) return;
+    var box = $('chatMsgs'), myId = ME && ME.id;
+    box.innerHTML = list.map(function (m) {
+      var me = String(m.uid) === String(myId);
+      return '<div class="chat-msg' + (me ? ' me' : '') + '">' + avatarHTML({ name: m.name, color: m.color }, 'sm') +
+        '<div class="col"><div class="nm tiny txt3">' + esc(m.name || '玩家') + '</div>' +
+        '<div class="bubble">' + esc(m.text || '') + '</div></div></div>';
+    }).join('');
+    box.scrollTop = box.scrollHeight;
+  }
+  function sendChat() {
+    var inp = $('chatIn'), txt = (inp.value || '').trim();
+    if (!txt) return;
+    inp.value = '';
+    api('/table/chat', { method: 'POST', body: { roomNo: ROOM, text: txt } }).then(function (r) {
+      if (r.code === 200 && r.j && r.j.ok) renderChat(r.j.chat);
+      else toast((r.j && r.j.msg) || '发送失败', 'err');
+    });
+  }
+
+  /* ================= 互动道具（2026-10-05）=================
+     点对手头像/座位 → 底部道具条 → 选一个飞过去砸中：冲击波 + 粒子 + 抖动 + 音效。
+     广播走 /papi/table/prop（服务端 3 秒冷却），全桌人（含围观）都能看到特效。 */
+  function seatEl(idx) { return document.querySelector('#seats .seat[data-seat="' + idx + '"]'); }
+  function seatOfUid(uid) {
+    var ss = (ST && ST.seats) || [];
+    for (var i = 0; i < ss.length; i++) {
+      if (ss[i] && !ss[i].empty && ss[i].user && String(ss[i].user.id) === String(uid)) return ss[i];
+    }
+    return null;
+  }
+  function openProp(uid, name) {
+    propTarget = { uid: uid, name: name || '对手' };
+    var m = $('propMask'); if (!m) return;
+    var PM = (typeof Props !== 'undefined' && Props.msg) ? Props.msg() : { to: '扔给 ' };
+    $('propTo').textContent = PM.to + propTarget.name;
+    /* 每次打开都重填：素材探测是异步的，第二次打开就能用上真实 gif（若有） */
+    if (typeof Props !== 'undefined') $('propGrid').innerHTML = Props.cells();
+    m.classList.remove('hide');
+  }
+  function closeProp() { var m = $('propMask'); if (m) m.classList.add('hide'); propTarget = null; }
+  function sendProp(key) {
+    var to = propTarget; closeProp();
+    if (!to || !ST) return;
+    var fs2 = ST.heroSeat >= 0 ? (ST.seats || [])[ST.heroSeat] : null;
+    var ts2 = seatOfUid(to.uid);
+    var ea = fs2 ? seatEl(fs2.idx) : null, eb = ts2 ? seatEl(ts2.idx) : null;
+    var av1 = ea && ea.querySelector('.avatar'), av2 = eb && eb.querySelector('.avatar');
+    /* 本地立刻出特效，不等下一轮轮询（700ms 后才收到广播） */
+    if (av1 && av2 && typeof Props !== 'undefined') Props.fly(av1, av2, key);
+    var PM2 = (typeof Props !== 'undefined' && Props.msg) ? Props.msg() : { fast: '扔得太快了，歇一下', err: '道具发送失败' };
+    api('/table/prop', { method: 'POST', body: { roomNo: ROOM, key: key, toUid: to.uid } }).then(function (r) {
+      if (r.code === 429) toast(PM2.fast, 'err');
+      else if (!(r.code === 200 && r.j && r.j.ok)) toast(PM2.err, 'err');
+    });
+  }
+  function onSeatClick(e) {
+    try {
+      if (!ST || typeof Props === 'undefined') return;
+      var se = e.target.closest ? e.target.closest('.seat') : null;
+      if (!se) return;
+      var idx = Number(se.getAttribute('data-seat'));
+      var s = (ST.seats || [])[idx];
+      if (!s || s.empty || !s.user) return;
+      if (s.user.isHero) { toast('不能给自己扔道具'); return; }
+      if (!(ST.heroSeat >= 0)) { toast('买入入座后才能扔道具'); return; }
+      openProp(s.user.id, s.user.name);
+    } catch (err) { }
+  }
+  /* 消费服务端下发的道具事件（按 id 去重；自己发的已本地播过，跳过） */
+  function consumeFx(list) {
+    if (!list || !list.length || typeof Props === 'undefined') return;
+    var myId = ME && ME.id;
+    list.forEach(function (f) {
+      if (!f || !f.id || fxSeen[f.id]) return;
+      fxSeen[f.id] = 1;
+      if (String(f.from) === String(myId)) return;
+      var a = seatOfUid(f.from), b = seatOfUid(f.to);
+      var ea = a ? seatEl(a.idx) : null, eb = b ? seatEl(b.idx) : null;
+      if (!ea || !eb) return;
+      var av1 = ea.querySelector('.avatar'), av2 = eb.querySelector('.avatar');
+      if (av1 && av2) Props.fly(av1, av2, f.key);
+      toast(Props.toastText(a && a.user && a.user.name, b && b.user && b.user.name, f.key));
+    });
+    /* 去重表别无限涨：超量后按当前队列重建 */
+    if (Object.keys(fxSeen).length > 60) {
+      fxSeen = {};
+      list.forEach(function (f) { if (f && f.id) fxSeen[f.id] = 1; });
+    }
+  }
+  /* 牌桌聊天：原先只在自己发消息后拉一次，别人的消息永远收不到（2026-10-05 修复） */
+  function markChat(list) {
+    if (!list) return;
+    var len = list.length || 0;
+    if (len > lastChatN) {
+      if (!chatOpen) {
+        var rail = document.querySelector('[data-rail="chat"]');
+        if (rail) rail.classList.add('has-dot');
+        var d = $('rtDot'); if (d) d.textContent = String(Math.min(99, len - lastChatN));
+      }
+      renderChat(list);
+    }
+    lastChatN = len;
+  }
+
+  /* ================= 手牌回顾 ================= */
+  function showHistory() {
+    var log = (ST && ST.log) || [];
+    var hero = ST && ST.heroSeat >= 0 ? (ST.seats || [])[ST.heroSeat] : null;
+    var comm = (ST && ST.community) || [];
+    var streetTxt = (ST && typeof ST.street === 'number') ? streetName(ST.street) : '等待';
+    var html = '';
+    /* 本手概要 */
+    html += '<div class="tiny txt3" style="padding:2px 0 8px">第 <b>' + ((ST && ST.handNo) || '-') + '</b> 手 · ' + esc(streetTxt) +
+      ' · 底池 <b class="gold">' + uStr(ST ? ST.pot : 0) + ' U</b></div>';
+    /* 我的手牌 */
+    html += '<div class="tiny txt3" style="margin-bottom:6px">我的手牌</div><div class="cards" style="min-height:52px">' +
+      (hero && hero.hole && hero.hole.length ? hero.hole.map(function (c) { return cardHTML(c, { size: 'md' }); }).join('') : '<span class="tiny txt3">本手未参与（等待下一手发牌）</span>') + '</div>';
+    /* 公牌 */
+    html += '<div class="tiny txt3" style="margin:10px 0 6px">公牌</div><div class="cards" style="min-height:52px">' +
+      (comm.length ? comm.map(function (c) { return cardHTML(c, { size: 'md' }); }).join('') : '<span class="tiny txt3">还未翻牌</span>') + '</div>';
+    /* 动作记录 */
+    html += '<div class="tiny txt3" style="margin:10px 0 6px">动作记录</div>';
+    html += log.length ? '<div class="log-list">' + log.map(function (l) {
+      var st = ['', '翻牌前', '翻牌', '转牌', '河牌'][Math.min(4, Math.max(0, l.street || 0))];
+      if (l.sys) return '<div class="log-row sys"><span class="st">' + st + '</span><span>' + esc(l.text || '') + '</span></div>';
+      return '<div class="log-row"><span class="st">' + st + '</span><span><b>' + esc(l.name || '玩家') + '</b> ' + esc(l.act || '') +
+        (l.amt ? (' <span class="amt">' + uStr(l.amt) + ' U</span>') : '') + '</span></div>';
+    }).join('') + '</div>' : '<div class="tiny txt3" style="padding:8px 0;text-align:center">本手还没有动作记录</div>';
+    $('logBody').innerHTML = html;
+    $('logMask').classList.remove('hide');
+  }
+
+  /* ================= 邀请 ================= */
+  function fallbackCopy(txt) {
+    try {
+      var ta = document.createElement('textarea'); ta.value = txt; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+      toast('房间号已复制：' + txt);
+    } catch (e) { toast('房间号：' + txt + '（请手动复制）', '', 3200); }
+  }
+  function copyRoomNo() {
+    var txt = String(ROOM || ''); if (!txt) { toast('没有房间号'); return; }
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(function () { toast('房间号已复制：' + txt); }, function () { fallbackCopy(txt); });
+      else fallbackCopy(txt);
+    } catch (e) { fallbackCopy(txt); }
+  }
+  function loadFriends() {
+    $('flist').innerHTML = '<div class="hint">正在加载好友…</div>';
+    api('/friends').then(function (r) {
+      var list = (r.code === 200 && r.j && r.j.friends) ? r.j.friends : [];
+      if (!list.length) { $('flist').innerHTML = '<div class="hint">你还没有好友。把房间号 <b>' + esc(ROOM) + '</b> 发给朋友，让他在大厅搜索进入。</div>'; return; }
+      $('flist').innerHTML = '';
+      list.forEach(function (f) {
+        var row = el('div', 'fitem');
+        row.innerHTML = '<div class="fav" style="background:' + (f.color || '#3b8cff') + ';color:#fff">' + esc((f.name || '?').slice(0, 1)) + '</div>' +
+          '<div class="fname">' + esc(f.name || ('玩家' + f.id)) + '</div>';
+        var b = el('button', 'btn sm gold'); b.textContent = '邀请';
+        b.onclick = function () {
+          b.disabled = true; b.textContent = '已发送'; $('invErr').textContent = '';
+          api('/rooms/invite', { method: 'POST', body: { no: ROOM, uid: String(f.id) } }).then(function (rr) {
+            if (rr.code === 200 && rr.j && rr.j.ok) toast('已邀请 ' + (f.name || '好友') + '，等对方同意后入座');
+            else { b.disabled = false; b.textContent = '邀请'; $('invErr').textContent = (rr.j && rr.j.msg) || ('邀请失败(' + rr.code + ')'); }
+          });
+        };
+        row.appendChild(b); $('flist').appendChild(row);
+      });
+    });
+  }
+
+  /* ================= 事件绑定 ================= */
+  function bindAll() {
+    $('rtBack').onclick = doLeave;
+    $('rtMenu').onclick = function () { $('menuMask').classList.remove('hide'); };
+    $('menuClose').onclick = function () { $('menuMask').classList.add('hide'); };
+    $('menuMask').onclick = function (e) { if (e.target === $('menuMask')) $('menuMask').classList.add('hide'); };
+    $('menuMask').querySelectorAll('[data-m]').forEach(function (b) {
+      b.onclick = function () {
+        var a = b.dataset.m;
+        $('menuMask').classList.add('hide');
+        if (a === 'buyin') showBuy('买入 / 加码');
+        else if (a === 'history') showHistory();
+        else if (a === 'copy') copyRoomNo();
+        else if (a === 'leave') doLeave();
+        else if (a === 'invite') { $('invNo').textContent = ROOM; $('invErr').textContent = ''; $('invMask').classList.remove('hide'); loadFriends(); }
+        else if (a === 'invite-list') { $('invNo').textContent = ROOM; $('invErr').textContent = ''; $('invMask').classList.remove('hide'); loadFriends(); }
+      };
+    });
+    $('invClose').onclick = function () { $('invMask').classList.add('hide'); };
+    $('invCopy').onclick = copyRoomNo;
+    $('invRefresh').onclick = loadFriends;
+    $('invMask').onclick = function (e) { if (e.target === $('invMask')) $('invMask').classList.add('hide'); };
+
+    $('logClose').onclick = function () { $('logMask').classList.add('hide'); };
+    $('logMask').onclick = function (e) { if (e.target === $('logMask')) $('logMask').classList.add('hide'); };
+
+    $('buyOk').onclick = doBuy;
+    $('buyMask').onclick = function (e) { if (e.target === $('buyMask')) closeBuy(); };
+    $('buyMin').onclick = function () { $('buyIn').value = (Math.max(ST ? ST.bb * 20 : 2, 2)).toFixed(2); };
+    $('buyHalf').onclick = function () { $('buyIn').value = (Math.round((ME ? ME.bal : 0) / 2 * 100) / 100).toFixed(2); };
+    $('buyAll').onclick = function () { $('buyIn').value = (ME ? ME.bal : 0).toFixed(2); };
+
+    document.querySelectorAll('[data-rail]').forEach(function (b) {
+      b.onclick = function () {
+        var a = b.dataset.rail;
+        if (a === 'buyin') showBuy('买入 / 加码');
+        else if (a === 'history') showHistory();
+        else if (a === 'leave') doLeave();
+        else if (a === 'chat') {
+          chatOpen = !chatOpen;
+          $('chatPanel').classList.toggle('show', chatOpen);
+          if (chatOpen) { b.classList.remove('has-dot'); setTimeout(function () { $('chatIn').focus(); }, 50); }
+        }
+      };
+    });
+    $('chatClose').onclick = function () { chatOpen = false; $('chatPanel').classList.remove('show'); };
+    $('chatSend').onclick = sendChat;
+    $('chatIn').onkeydown = function (e) { if (e.key === 'Enter') sendChat(); };
+    /* 互动道具：点座位/头像弹出道具条 */
+    $('seats').addEventListener('click', onSeatClick);
+    $('propCancel').onclick = closeProp;
+    $('propMask').onclick = function (e) { if (e.target === $('propMask')) closeProp(); };
+    $('propGrid').addEventListener('click', function (e) {
+      var c = e.target.closest ? e.target.closest('[data-prop]') : null;
+      if (c) sendProp(c.getAttribute('data-prop'));
+    });
+  }
+
+  /* ================= 启动 ================= */
+  function boot() {
+    if (!ROOM) { document.body.innerHTML = '<p style="padding:30px;color:#0f172a">缺少房间号</p>'; return; }
+    if (!tk) { toast('未登录，请先回到 App 登录'); setTimeout(function () { location.href = 'index.html#login'; }, 1500); return; }
+    bindAll();
+    /* 音频通道解锁：移动端浏览器不许"没交互就出声"，第一次触碰点亮，
+       之后机器人/对手的自动播报才响得出来（core.js 不在本页，这里自己接） */
+    ['pointerdown', 'touchstart', 'click'].forEach(function (ev) {
+      document.addEventListener(ev, function () {
+        try { if (typeof SfxVoice !== 'undefined') SfxVoice.unlock(); } catch (e) { }
+      }, { once: true, capture: true });
+    });
+    api('/me').then(function (r) { if (r.code === 200 && r.j && r.j.user) ME = r.j.user; });
+    /* 进房不自动弹买入框；要买入点侧栏「买入」图标，自己填金额 */
+    refresh().then(function () { startPoll(); tick(); });
+  }
+  boot();
+})();
+
+</script>
+</body>
+</html>
+
+
+
+
+
+
+

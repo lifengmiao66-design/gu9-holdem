@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<script>/* 版本自愈：检测到构建号变化（或带 ?_=r 强刷标记）→ 强制刷新一次，解决 iOS/PWA 缓存旧版 JS */
+(function () {
+  try {
+    var B = '20261011b';
+    var q = location.search;
+    if (q.indexOf('_=r') >= 0) { try { localStorage.setItem('gu9_build', B); } catch (e) { } return; }
+    if (localStorage.getItem('gu9_build') !== B) {
+      localStorage.setItem('gu9_build', B);
+      location.replace(location.pathname + '?_=r' + Date.now() + location.hash);
+    }
+  } catch (e) { }
+})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>GU9 · 德州扑克</title>
+<link rel="icon" type="image/png" sizes="64x64" href="assets/favicon.png?v=20261011b">
+<link rel="shortcut icon" type="image/png" sizes="64x64" href="assets/favicon.png?v=20261011b">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png?v=20261011b">
+<link rel="manifest" href="/manifest.json?v=20261011b">
+<meta name="theme-color" content="#f4f6f9">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="GU9扑克">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="stylesheet" href="css/style.css?v=20261011b">
+<link rel="stylesheet" href="css/table.css?v=20261011b">
+</head>
+<body>
+<div id="app">
+  <div id="screen-root" class="screen-root"></div>
+  <div id="modal-root"></div>
+  <div id="sheet-root"></div>
+  <div id="toast-root" class="toast-root"></div>
+  <div id="fx-root"></div>
+</div>
+
+<script src="js/i18n.js?v=20261011b"></script>
+<script src="js/sfx-voice.js?v=20261011b"></script>
+<script src="js/core.js?v=20261011b"></script>
+<script src="js/tview.js?v=20261011b"></script>
+<script src="js/game.js?v=20261011b"></script>
+<script src="js/login.js?v=20261011b"></script>
+<script src="js/lobby.js?v=20261011b"></script>
+<script src="js/table.js?v=20261011b"></script>
+<script src="js/social.js?v=20261011b"></script>
+<script src="js/modes.js?v=20261011b"></script>
+<script src="js/wallet.js?v=20261011b"></script>
+<script src="js/misc.js?v=20261011b"></script>
+<script src="js/app.js?v=20261011b"></script>
+</body>
+</html>
+
+
+
+
+
+

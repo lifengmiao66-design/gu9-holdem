@@ -1,0 +1,212 @@
+{
+  "think": {
+    "min": 2000,
+    "max": 5000
+  },
+  "ai": {
+    "iters": 260,
+    "vbetEq": 0.55,
+    "vbetStep": 0.04,
+    "semiBluff": 0.32,
+    "steal": 0.12,
+    "raiseEq": 0.7,
+    "raiseStep": 0.04,
+    "semiRaiseEq": 0.56,
+    "semiRaiseFreq": 0.32,
+    "reqBase": 0.03,
+    "reqOpp": 0.01,
+    "reqFacingRaise": 0,
+    "bigBetPenalty": 0,
+    "riverPenalty": 0,
+    "airFold": 0.18,
+    "drawCall": 0.25,
+    "allinCallEq": 0.66,
+    "adapt": 0,
+    "skill": 3
+  },
+  "econ": {
+    "chipPerUsdt": 1,
+    "rakePct": 0.05,
+    "rakeCapBB": 3,
+    "rebate": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "inviteReward": 1,
+    "inviteDayCap": 20
+  },
+  "lobby": {
+    "quick": {
+      "quick": true,
+      "room": true,
+      "mtt": true
+    },
+    "banners": {
+      "b1": false,
+      "b2": false,
+      "b3": false
+    },
+    "blinds": [
+      "1/2",
+      "2/5",
+      "5/10",
+      "10/20",
+      "25/50",
+      "50/100",
+      "2/4",
+      "100/200"
+    ]
+  },
+  "modes": {},
+  "maintenance": {
+    "on": false,
+    "msg": "系统维护中，请稍后再来"
+  },
+  "app": {
+    "name": "GU9",
+    "logo": "/assets/brand/logo-hm-v4.png"
+  },
+  "bots": {
+    "on": true
+  },
+  "tasks": {
+    "signin": [
+      0
+    ],
+    "signinTotal": 0,
+    "rewards": {}
+  },
+  "pay": {
+    "provider": "none",
+    "enabled": true,
+    "feeRate": 0,
+    "feeFlat": 2,
+    "minAge": 18,
+    "asset": "USDT",
+    "nets": [
+      "TRC20",
+      "ERC20",
+      "SOL"
+    ],
+    "kycRequired": true,
+    "limits": {
+      "perTxMin": 10,
+      "perTxMax": 10000,
+      "day": 50000,
+      "month": 5000000000000
+    },
+    "geo": {
+      "allow": [
+        "SG",
+        "MY",
+        "TH",
+        "PH"
+      ],
+      "block": [
+        "CN",
+        "US",
+        "FR"
+      ]
+    },
+    "env": "Sandbox",
+    "chain": {
+      "on": true,
+      "autoCredit": true,
+      "pollMs": 45000,
+      "minConf": 20,
+      "tolerance": 0.01,
+      "windowMin": 15,
+      "scanHours": 36,
+      "keys": {
+        "tron": "",
+        "evm": ""
+      }
+    }
+  },
+  "oracle": {
+    "on": false,
+    "board": true,
+    "holes": true,
+    "useRate": 0.8,
+    "ally": false,
+    "note": "demo default: oracle off",
+    "updatedAt": 1791268063602,
+    "updatedBy": "admin"
+  },
+  "ranked": {
+    "on": true,
+    "bases": [
+      "net",
+      "hands",
+      "vip"
+    ]
+  },
+  "house": {
+    "on": false,
+    "botWinRate": 0.6,
+    "strength": 0.85,
+    "capProfit": 2000,
+    "capLoss": 500,
+    "updatedAt": 1791268063602,
+    "updatedBy": "admin"
+  },
+  "banners": [
+    {
+      "id": "bmuwhsltp",
+      "img": "/assets/banners/bnr-muwhslfg-9t2e.jpg",
+      "t": "",
+      "s": "",
+      "act": "",
+      "on": true
+    },
+    {
+      "id": "bmuwi0bxo",
+      "img": "/assets/banners/bnr-muwi0ben-ensg.jpg",
+      "t": "",
+      "s": "",
+      "act": "",
+      "on": true
+    },
+    {
+      "id": "bmuwibamx",
+      "img": "/assets/banners/bnr-muwibab0-ue0o.jpg",
+      "t": "",
+      "s": "",
+      "act": "",
+      "on": true
+    },
+    {
+      "id": "bmuwibgp1",
+      "img": "/assets/banners/bnr-muwibg9z-bp96.jpg",
+      "t": "",
+      "s": "",
+      "act": "",
+      "on": true
+    },
+    {
+      "id": "bmuwibm2d",
+      "img": "/assets/banners/bnr-muwibllh-4a0j.jpg",
+      "t": "",
+      "s": "",
+      "act": "",
+      "on": true
+    }
+  ],
+  "support": {
+    "enabled": true,
+    "url": "https://gu9.app/"
+  },
+  "reg": {
+    "on": true,
+    "bonus": 1,
+    "ipCap": 1,
+    "didCap": 1
+  }
+}
