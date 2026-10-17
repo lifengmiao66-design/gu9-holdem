@@ -3,7 +3,7 @@
 GU9 · Texas Hold'em — a **demo / white-label style** poker web client + Node API.
 
 - **Demo:** https://gu9.click/
-- **Handle:** [@king678ace](https://x.com/king678ace)
+- **Telegram（飞机）:** [@king678ace](https://t.me/king678ace)
 
 ---
 
@@ -17,11 +17,13 @@ GU9 · Texas Hold'em — a **demo / white-label style** poker web client + Node 
 - **包网** 相关对接与开发协作
 - **定制开发**（前端界面、玩法逻辑、管理后台、对接需求等）
 
-扫描下方二维码，或通过 X / GitHub 联系 **@king678ace**，说明您的场景即可，我会尽快回复。
+扫描下方二维码，或通过 Telegram（飞机）联系 [@king678ace](https://t.me/king678ace)，说明您的场景即可，我会尽快回复。
 
-**Hello.** If this demo looks useful for your poker / white-label / custom build needs, feel free to reach out via WeChat, WhatsApp, or [@king678ace](https://x.com/king678ace). Happy to discuss Texas Hold'em products, platform integration, and custom development.
+**Hello.** If this demo looks useful for your poker / white-label / custom build needs, feel free to reach out via WeChat, WhatsApp, or Telegram [@king678ace](https://t.me/king678ace). Happy to discuss Texas Hold'em products, platform integration, and custom development.
 
 ### 联系方式 Contact
+
+- **Telegram（飞机）:** [@king678ace](https://t.me/king678ace)
 
 | 微信 WeChat（HENG） | WhatsApp（GU9） |
 |:---:|:---:|
@@ -94,4 +96,4 @@ node test_table.js
 
 ## License / Contact
 
-Demo source for evaluation. Questions → **@king678ace** · WeChat / WhatsApp QR above.
+Demo source for evaluation. Questions → Telegram（飞机） [@king678ace](https://t.me/king678ace) · WeChat / WhatsApp QR above.
