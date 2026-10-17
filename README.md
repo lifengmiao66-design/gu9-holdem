@@ -2,8 +2,34 @@
 
 GU9 · Texas Hold'em — a **demo / white-label style** poker web client + Node API.
 
-- **Demo site:** https://gu9.click/
-- **Contact:** [@king678ace](https://x.com/king678ace)（GitHub / X handle）
+- **Demo:** https://gu9.click/
+- **Handle:** [@king678ace](https://x.com/king678ace)
+
+---
+
+## 👋 写给潜在合作方 / 客户
+
+您好。如果您看到了这个项目、对演示效果或定制能力感兴趣，**欢迎直接联系我**。
+
+我可以帮您做：
+
+- **德州扑克** 产品 / 白标方案评估与定制
+- **包网** 相关对接与开发协作
+- **定制开发**（前端界面、玩法逻辑、管理后台、对接需求等）
+
+扫描下方二维码，或通过 X / GitHub 联系 **@king678ace**，说明您的场景即可，我会尽快回复。
+
+**Hello.** If this demo looks useful for your poker / white-label / custom build needs, feel free to reach out via WeChat, WhatsApp, or [@king678ace](https://x.com/king678ace). Happy to discuss Texas Hold'em products, platform integration, and custom development.
+
+### 联系方式 Contact
+
+| 微信 WeChat（HENG） | WhatsApp（GU9） |
+|:---:|:---:|
+| <img src="docs/contact/wechat-heng.jpg" alt="WeChat QR — HENG" width="220" /> | <img src="docs/contact/whatsapp-gu9.jpg" alt="WhatsApp QR — GU9" width="220" /> |
+
+扫码添加 · Scan to connect
+
+---
 
 本仓库为可运行的演示源码（UI + API），用于界面与玩法展示 / 白标评估，**不是**完整生产运维包。线上演示见 https://gu9.click/ 。
 
@@ -12,6 +38,7 @@ GU9 · Texas Hold'em — a **demo / white-label style** poker web client + Node 
 ```
 gu9-ui/     # 静态前端（HTML / CSS / JS，PWA）
 gu9-api/    # Node.js 后端（零 npm 依赖，JSON 落盘）
+docs/       # 文档与联系二维码
 .env.example
 ```
 
@@ -67,4 +94,4 @@ node test_table.js
 
 ## License / Contact
 
-Demo source for evaluation. Questions → **@king678ace**
+Demo source for evaluation. Questions → **@king678ace** · WeChat / WhatsApp QR above.
